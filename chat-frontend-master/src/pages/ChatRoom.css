@@ -1,0 +1,175 @@
+/* ChatRoom.css */
+.chat-room {
+    display: flex;
+    height: 100vh;
+    background-image: url('../assets/botbg.jpg'); /* 設置背景圖片 */
+    background-size: contain; /* 覆蓋整個聊天室區域 */
+}
+
+.left-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #f0f0f0;
+    padding: 10px;
+    overflow-y: auto;
+    border-right: 1px solid #ccc; /* 添加分隔線 */
+}
+
+.chatroom-intro {
+    flex: 1;
+    /* 添加所需的樣式 */
+    font-size: 14px; /* 調整字體大小 */
+    color: #333; /* 調整字體顏色 */
+    line-height: 1.5; /* 調整行高 */
+    margin-bottom: 20px; /* 添加下邊距 */
+}
+
+.options {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* 對齊按鈕到左邊 */
+}
+
+.options button {
+    margin: 10px;
+    padding: 10px;
+    border: none; /* 移除邊框 */
+    background-color: #4CAF50; /* 更改背景色 */
+    color: white; /* 更改文字顏色 */
+    border-radius: 4px; /* 圓角邊框 */
+    cursor: pointer; /* 鼠標懸停時更改樣式 */
+}
+
+.options button:hover {
+    background-color: #45a049; /* 懸停時更改背景色 */
+}
+
+.right-panel {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+}
+
+.message {
+    display: flex; /* 修改：使用flex布局 */
+    align-items: center; /* 新增：垂直居中對齊 */
+    justify-content: flex-end; /* 修改：如果是用戶消息，則水平居右對齊 */
+    max-width: 80%; /* 最大寬度設為80% */
+    background-color: #f1f1f1;
+    margin: 5px 10px 5px 0; /* 修改：適當調整邊距 */
+    padding: 10px;
+    border-radius: 18px;
+    border: 1px solid #ddd;
+    position: relative; /* 新增：為了定位尾巴 */
+}
+
+.user-message {
+    justify-content: flex-end; /* 如果是用戶消息，水平居右對齊 */
+    background-color: #daf1da; /* 設定用戶消息的背景色 */
+    margin-left: auto; /* 確保消息框在右邊 */
+    position: relative; /* 相對定位，為了定位 icon */
+}
+
+.user-message:before { 
+    display: none;
+}
+
+.response-message {
+    justify-content: flex-end; /* 回應消息水平居右對齊 */
+}
+
+.messages {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 10px;
+    border-left: 1px solid #ccc;
+}
+
+.user-message {
+    float: right; /* 用戶消息向右浮動 */
+    clear: both; /* 防止消息之間相互疊加 */
+    margin-right: 20px;
+    background-color: #daf1da;
+}
+
+.user-message:before { /* 用戶消息對話泡泡的尾巴 */
+    left: auto;
+    right: -15px; /* 根據實際情況調整 */
+    border-color: transparent transparent transparent #daf1da; /* 用戶消息背景色 */
+}
+
+/* 新增 .user-icon 的樣式來定位到消息框外的右邊 */
+.user-icon {
+    position: absolute;
+    right: -35px; /* 根據 icon 大小調整，確保它在消息框的外面 */
+    top: 50%;
+    transform: translateY(-50%); /* 垂直居中 */
+    font-size: 24px; /* 或您期望的大小 */
+    color: #333; /* 可以根據需要調整顏色 */
+}
+
+.response-message {
+    float: left; /* 回應消息向左浮動 */
+    clear: both; /* 防止消息之間相互疊加 */
+    background-color: #f1f1f1;
+}
+
+.message-input {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+}
+
+.message-input input {
+    flex-grow: 1;
+    margin-right: 10px;
+    padding: 10px;
+    border: 1px solid #ddd; /* 添加邊框 */
+}
+
+.user-icon {
+    font-size: 24px; /* 調整圖標大小 */
+    margin-right: 10px; /* 調整圖標和輸入框的間距 */
+}
+
+.message-input button {
+    padding: 10px;
+    border: none; /* 移除邊框 */
+    background-color: #4CAF50; /* 更改背景色 */
+    color: white; /* 更改文字顏色 */
+    border-radius: 4px; /* 圓角邊框 */
+    cursor: pointer; /* 鼠標懸停時更改樣式 */
+    align-self: flex-start; /* 將按鈕在Flex容器中向上對齊 */
+}
+
+.message-input button:hover {
+    background-color: #45a049; /* 懸停時更改背景色 */
+}
+
+.selected-option {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    animation: fadeOut 3s forwards;
+}
+
+/* 用於去除左右滾動條的樣式 */
+body {
+    overflow-x: hidden; /* 避免橫向滾動條 */
+}
+
+.messages {
+    overflow-x: hidden;
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}

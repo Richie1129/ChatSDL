@@ -1,0 +1,23 @@
+version: "3.1"
+
+rules:
+
+- rule: Topic Check Rule
+  steps:
+  - intent: topic_check
+  - action: action_topic_response
+
+- rule: Idea Check Rule
+  steps:
+  - intent: idea_check
+  - action: action_idea_response
+
+- rule: No Idea Check Rule
+  steps:
+  - intent: no_idea_check
+  - action: utter_no_idea_check
+
+- rule: Fallback rule
+  steps:
+  - intent: nlu_fallback
+  - action: action_fallback

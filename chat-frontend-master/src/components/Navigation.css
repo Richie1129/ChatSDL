@@ -1,0 +1,46 @@
+/* Navigation.css */
+.navbar-custom {
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 10px 20px;
+}
+
+.navbar-toggle {
+    border: none;
+}
+
+.navbar-logo {
+    width: 50px;
+    height: 50px;
+}
+
+.navbar-link {
+    color: #000000;
+    font-weight: 500;
+    margin-right: 15px;
+}
+
+.navbar-dropdown {
+    margin-left: auto;
+}
+
+.navbar-user-image {
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.navbar-logout-button {
+    background-color: #dc3545;
+    color: #ffffff;
+    border: none;
+    padding: 5px 10px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.navbar-logout-button:hover {
+    background-color: #c82333;
+}
