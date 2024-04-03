@@ -2,20 +2,13 @@
 
 import React, { useState, useContext } from 'react';
 import { useSelector } from "react-redux";
-import { FaUser, FaRobot  } from 'react-icons/fa';
+import { FaUser } from 'react-icons/fa';
 import { fetchElasticSearchResults } from './ElasticSearch'; // 引入查詢函數
-import { fetchKeyword } from '../Api/keyapi';
 import { AppContext } from "../context/appContext";
 import Swal from 'sweetalert2'
 import './ChatRoom.css';
-import { fetchJudgeIdea } from '../Api/judgeidea';
-import { fetchDefine } from '../Api/defineapi';
-import { fetchGuide } from '../Api/guideapi';
-import { fetchChatResponse } from '../Api/chatapi'; // 引入與API通信的函數
-import { fetchCompleteQuestion } from '../Api/completequestionapi'; 
-import { inspirationMessages } from '../process/processController';
 import { fetchTechCsv } from '../Api/techcsv';
-import Draggable from 'react-draggable';
+import DialogBox from '../components/DialogBox'
 
 const ChatRoom = () => {
     const [messages, setMessages] = useState([]);
@@ -24,8 +17,6 @@ const ChatRoom = () => {
     const [tempMessage, setTempMessage] = useState(''); // 用於短期顯示的提示信息
     const { socket } = useContext(AppContext);
     const user = useSelector((state) => state.user);
-    const [askingForKeywords, setAskingForKeywords] = useState(false);;
-    const [researchQuestion, setResearchQuestion] = useState('');
 
     const handleSendMessage = async () => {
         if (inputMessage.trim() !== '') { 
@@ -221,8 +212,8 @@ const ChatRoom = () => {
     return (
         
         <div className="chat-room">
-            
             <div className="left-panel">
+            
             <div className="chatroom-intro">
             <h1>科學探究與實作學習平台</h1>
             <h2>聊天室介紹</h2>
@@ -233,11 +224,13 @@ const ChatRoom = () => {
                 <p>2. 探究問題：通過實驗、研究和分析來尋找問題的答案。你將學會如何設計實驗、收集數據並從中得出結論。</p>
                 <p>3. 批判思考與創新：鼓勵你們對現有知識提出質疑，並嘗試創新方法解決問題。這不僅僅是學習知識，更是培養獨立思考和創新能力。</p>
             </div>
-            {/* 利用5W1H方法（即什麼、為什麼、如何、誰、何時、何地）， */}
-                <div className="options">
+                <div className="options">                
                     <button onClick={() => handleOptionSelect("option1")}>探究主題</button>
                     <button onClick={() => handleOptionSelect("option2")}>關鍵字檢索</button>
                     <button onClick={() => handleOptionSelect("option3")}>相關科展作品</button>
+                </div>
+                <div>
+                    <DialogBox onScaffoldClick={setInputMessage} />
                 </div>
             </div>
             <div className="right-panel">

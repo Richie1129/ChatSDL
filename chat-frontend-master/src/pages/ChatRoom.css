@@ -36,14 +36,14 @@
     margin: 10px;
     padding: 10px;
     border: none; /* 移除邊框 */
-    background-color: #4CAF50; /* 更改背景色 */
+    background-color: #5BA491; /* 更改背景色 */
     color: white; /* 更改文字顏色 */
     border-radius: 4px; /* 圓角邊框 */
     cursor: pointer; /* 鼠標懸停時更改樣式 */
 }
 
 .options button:hover {
-    background-color: #45a049; /* 懸停時更改背景色 */
+    background-color: #5BA491; /* 懸停時更改背景色 */
 }
 
 .right-panel {

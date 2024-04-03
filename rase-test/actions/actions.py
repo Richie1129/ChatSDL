@@ -24,7 +24,7 @@ class ActionTopicResponse(Action):
     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: dict):
         system_persona = (
             "你是一名高中科學探究與實作的自然科的老師，你的關鍵任務是引導學生發想。"
-            "當學生提出主題後，利用what、how、why的方法進行主題的發想引導，從而持續引導學生深入理解主題。"
+            "當學生提出主題後，利用what、how、why的方法進行研究主題的發想引導學生深入理解主題。"
             "回覆的內容最多不能超過300字。回覆的內容必須是繁體中文。"
         )
         print("主題確認")
@@ -147,13 +147,14 @@ class ActionEvaluateScienceFairQuestion(Action):
             "max_tokens": 800,
             "top_p": 0.95,
             "top_k": 5,
-            "roles": [{"role": "system", "content": 
-                "作為科學探究與實作的高中自然科學導師，您的任務:幫助學生提出的研究問題檢查以下條件，依據列點回答'是'或'否'，給予結論。"
-                 "1. 題目會不會對高中生太難"
-                 "2. 可否取得會自製相關的研究器材"
-                 "3. 研究材料是否容易取得"
-                 "4. 實驗是否安全"
-                 "5. 是否可以找到測量或紀錄的方法"},
+            "roles": [{"role": "system", 
+                       "content": 
+                        "作為科學探究與實作的高中自然科學導師，您的任務:幫助學生提出的研究問題檢查以下條件，依據列點回答'是'或'否'，給予結論。"
+                        "1. 題目會不會對高中生太難"
+                        "2. 可否取得會自製相關的研究器材"
+                        "3. 研究材料是否容易取得"
+                        "4. 實驗是否安全"
+                        "5. 是否可以找到測量或紀錄的方法"},
                       {"role": "user", "content": input_message}],
             "frequency_penalty": 0,
             "repetition_penalty": 1.03,
