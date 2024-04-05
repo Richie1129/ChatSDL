@@ -42,15 +42,26 @@ const ChatRoom = () => {
             // 清空輸入框
             setInputMessage('');
 
-            if (selectedOption === '相關科展作品') {
-                const searchResults = await fetchElasticSearchResults(inputMessage);
+            // if (selectedOption === '相關科展作品') {
+            //     const searchResults = await fetchElasticSearchResults(inputMessage);
+            //     if (Array.isArray(searchResults)) {
+            //         searchResults.forEach(result => {
+            //             setMessages(currentMessages => [...currentMessages, { text: result, type: 'response' }]);
+            //         });
+            //     } else {
+            //         console.error('返回的數據不是陣列');
+            //     }
+            if (inputMessage.includes('我想查詢相關作品：')) {
+                const keyword = inputMessage.split('我想查詢相關作品：')[1]; // 從輸入中提取關鍵字
+                const searchResults = await fetchElasticSearchResults(keyword); // 使用提取的關鍵字進行搜索
+            
                 if (Array.isArray(searchResults)) {
                     searchResults.forEach(result => {
                         setMessages(currentMessages => [...currentMessages, { text: result, type: 'response' }]);
                     });
                 } else {
                     console.error('返回的數據不是陣列');
-                }
+                }           
             } else if (selectedOption === '關鍵字檢索') {
                 const techResult = await fetchTechCsv(inputMessage);
                 if (techResult.response && techResult.response !== 'API請求失敗' && techResult.response !== 'API請求過程中發生錯誤') {
@@ -186,15 +197,15 @@ const ChatRoom = () => {
                   });
                   welcomeMessage = "嗨，當你在科學探究與實做到這個階段，你可能需要利用你的研究主題或是研究問題，找出適合的關鍵字來尋找相關科展作品或是找出其他的文獻資料，來做為你科學探究與實作的靈感。首先請你先直接輸入你的研究問題！";
                 break;
-            case "option3":
-                optionText = "相關科展作品";
-                Swal.fire({
-                    title: "查詢相關科展作品",
-                    text: "在這邊你可以查詢的相關科展作品，直接輸入關鍵字即可！",
-                    icon: "info"
-                  });
-                welcomeMessage = "這個功能可以幫助你利用關鍵字來找尋相關科展作品，來給你參考其他人對於你選定的主題會怎麼做，希望這會給你帶來靈感，直接輸入關鍵字即可！如果想查詢多個關鍵字請用 '、' 分開！";
-                  break;
+            // case "option3":
+            //     optionText = "相關科展作品";
+            //     Swal.fire({
+            //         title: "查詢相關科展作品",
+            //         text: "在這邊你可以查詢的相關科展作品，直接輸入關鍵字即可！",
+            //         icon: "info"
+            //       });
+            //     welcomeMessage = "這個功能可以幫助你利用關鍵字來找尋相關科展作品，來給你參考其他人對於你選定的主題會怎麼做，希望這會給你帶來靈感，直接輸入關鍵字即可！如果想查詢多個關鍵字請用 '、' 分開！";
+            //       break;
             default:
                 optionText = "";
         }
@@ -227,7 +238,7 @@ const ChatRoom = () => {
                 <div className="options">                
                     <button onClick={() => handleOptionSelect("option1")}>探究主題</button>
                     <button onClick={() => handleOptionSelect("option2")}>關鍵字檢索</button>
-                    <button onClick={() => handleOptionSelect("option3")}>相關科展作品</button>
+                    {/* <button onClick={() => handleOptionSelect("option3")}>相關科展作品</button> */}
                 </div>
                 <div>
                     <DialogBox onScaffoldClick={setInputMessage} />
