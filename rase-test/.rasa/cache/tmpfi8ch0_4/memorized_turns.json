@@ -1,0 +1,23 @@
+{
+  "lookup": {
+    "eJyLrq6NBQAEOAGx": "action_listen",
+    "eJyLrq7VUaguKEoti09MLsnMz7NSqIYw4vMSc1OtFKCcnMziktQ8oNrS4tQioJrMPCC3xEohMyU1MT45IzU5u7Y2FgB3Rx1e": "action_idea_response",
+    "eJyLrq7VUaguKEoti09MLsnMz7NSqIYw4vMSc1OtFKCcnMziktQ8oNrS4tQioJrMPCC3xEohMyU1MT45IzU5u5Y4g8AailKLC/LzilPxmxcLAG8xO90=": "action_listen",
+    "eJwti9EJgDAMBVfJAE7QVURCLU8I2KhN6k/p7lb07w7u5tYnamfBzTG5HBqofcAaMwL9sos5dLTVUEYjOtQDWV2zOFsSaAJvUQpfFfZOvS8P0uAlEw==": "action_evaluate_science_fair_question",
+    "eJyVjUEKhTAMRK/SA3iCXkUkxDJCQKM2qZvi3e3nuxV0Nw9m3vT17ELdMg7i5LJqDPUfSHlBDDfMYg5t3WLIrSPa0GOwMi7iZEmgCTSxZNoL7Dc636lx8FzY8SD5eDlcjlNSTg==": "action_listen",
+    "eJyLrq7VUaguKEoti09MLsnMz7NSqIYw4vMSc1OtFKCcnMziktQ8oNrS4tQioJrMPCC3xEqhuDQpN7Mkvjg5MzUvOTU+LTGzKL6wNLUYpKmWOKNTyxJzShNLUnEYQgsrcfkmPT8/BZfBsQAZPXTF": "utter_good_question_detected",
+    "eJy1j10KAjEMhK/SA3iCXkUk1HaUwG6qTbIvZe9u/XtcUMG3DMz3Ddn3dRf6pWGhlI2rxNCfB0maEcMrTKwGGV1XtNFhGdFiUD/ObKSZIRl0Stzo6tA7tH6mxpImT4YNyT8mt74511p+E7sZGj34N0IFhmwo3+0cbsXRnYQ=": "action_listen",
+    "eJy1j10KAjEQg6/SA3iCXkVkmG2jDOxOtZ3uS9m7W/8eiyL6lkDyhezbtnPtnLESB5Ok3rWHIOUF3j3NLMWgPVsLcs+IdmvelTotYlSCQAPoyJLpUlFupe0zNFaeKxsGkH9Mjt6cUorfgasZMt37rwpFGIIh/nLnzYGJh9zDFbV9v3k=": "utter_bad_question_detected",
+    "eJy1j0sOwjAMRK+SA3CCXAUhy00GZKlNaOJ0E/XupHyWhQroziP5zedY54Op14SJ2KnEYE19HBR4gDVP0UtWhPZbMlL7kdCkWpNLN4hSdoLgQGeWRGNBXqB5mzUm7gsrVkz2iFxbc4nRf2dcVJHozr8Q8lA4hf9nzocBHf/Uf8E31H+TcroB4xDnNA==": "action_listen",
+    "eJyLrq7VUaguKEoti09MLsnMz7NSqIYw4vMSc1OtFKCcnMziktQ8oNrS4tQioJrMPCC3xEohvSg1taS2NhYA6dwbhQ==": "utter_greet",
+    "eJyLrq7VUaguKEoti09MLsnMz7NSqIYw4vMSc1OtFKCcnMziktQ8oNrS4tQioJrMPCC3xEohvSg1taSWgBmlJSWpRfEQpbhMiAUAQvc0lw==": "action_listen",
+    "eJyLrq7VUaguKEoti09MLsnMz7NSqIYw4vMSc1OtFKCcnMziktQ8oNrS4tQioJrMPCC3xEohOSM/vzg1PiWzODmzICczL7W2NhYAUqMgcg==": "action_save_science_discipline",
+    "eJyLrq7VUaguKEoti09MLsnMz7NSqIYw4vMSc1OtFKCcnMziktQ8oNrS4tQioJrMPCC3xEohOSM/vzg1PiWzODmzICczL7WWOPOKE8tS44F6UvOSUXQTY0EsALjlRg8=": "action_listen",
+    "eJytjkEKgDAMBL/SB/iCfkUklBgwUJPS1F5K/25BL5704G0XdnZ3bn1yLWWqELCwinftEiBhJ+9uE9kKycgeRnlkWIYt3uGmagQrG3KKLNS/9VmoBIMhwQf928DL4aKJsfflBHLxYss=": "action_explore_chemistry_topic",
+    "eJytjkEKwzAMBL/iB/QF/kopwqgLETiysZyQYvL3CppLT8khNy3szOo59kcYtWGlxF2KxjB+B2maEcMRsliHencxNO+Ieuwx8FSKgd5iLDWLYr/ms7SCnIHyH33bwMnDvVThiypsNZcG4gmzW9vnoE/cry9mH4as": "action_listen",
+    "eJytjkEKwzAMBL/iB+QF/koJxlUXInAkYzmhxeTvNdSXnpJDblrYGe2jHZNruWAPkSqreNd+R5C4wrsREluF9O5mKL3D0mP1jhZVQ3ixEefEguOaz+KO0BkI/dG3PTgZXDUzXVThnZMWBFqwdmv5DPoO98lM257DNn8B/CGksg==": "action_save_chemistry_subtopic",
+    "eJytkNEJwzAMRFfxAJ3Aq4RiXPUgAkc2lhNaTHavaUNLv5xA/nSg93RoqOvF1JSxOE+Fo1hTP4MTP8GaLQTWAmm7syK3HZYWizU0xqhwd1biFFiw7vOpX+AaA6E/+rQDncIlJqadKjxSiBmORkzNmp8bfYa7U1Pn2xHb+6u/ml+6r7++APpqydc=": "action_listen",
+    "eJyLrq7VUaguKEoti09MLsnMz7NSqIYw4vMSc1OtFKCcnMziktQ8oNrS4tQioJrMPCC3xEqhJL8gMzk+OSM1Obu2NhYAltQd6g==": "action_topic_response",
+    "eJyLrq7VUaguKEoti09MLsnMz7NSqIYw4vMSc1OtFKCcnMziktQ8oNrS4tQioJrMPCC3xEqhJL8gMzk+OSM1ObuWOJMgOopSiwvy84pTCZgYCwA9kz2B": "action_listen"
+  }
+}

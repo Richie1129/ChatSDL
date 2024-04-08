@@ -368,16 +368,54 @@ class ActionExploreChemistryTopic(Action):
                      "III. 烴的燃燒與汽油辛烷值\n"
                      "IV. 化學電池原理\n"
                      "V. 常見的電池\n"
-                     "VI. 實驗：化學電池\n"
+                     "VI. 化學電池\n"
                      "VII. 替代能源\n"
                      "VIII. 簡介臺灣的再生能源及附近海域能源的蘊藏與開發"
             )
             return [SlotSet("chemistry_topic", "energy_development_utilization")]
 
-        # 可以根據需要添加其他化學主題的處理
-
         return []
 
+class ActionSaveChemistrySubtopic(Action):
+    def name(self):
+        return "action_save_chemistry_subtopic"
+
+    def run(self, dispatcher, tracker, domain):
+        subtopic = tracker.latest_message.get('text')
+
+        # API URL
+        api_url = "http://ml.hsueh.tw:1287/query/"
+        data = {
+            "question": subtopic,
+            "search_result": ""
+        }
+        headers = {
+            'accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
+
+        # 發送 POST 請求到 API
+        response = requests.post(api_url, json=data, headers=headers)
+        if response.status_code == 200:
+            result = response.json()
+            if result.get("response") and result["response"] not in ['API請求失敗', 'API請求過程中發生錯誤']:
+                dispatcher.utter_message(text=result["response"])
+                dispatcher.utter_message(text="以下來自科技大觀園的相關資訊...")
+
+                for content_str in result.get("search_contents", []):
+                    if 'Link: ' in content_str and 'Description: ' in content_str:
+                        parts = content_str.split(' Link: ')
+                        title = parts[0].replace('Title: ', '')
+                        link, description = parts[1].split(' Description: ')
+                        message = f"{title}\n{link}\n{description}"
+                        dispatcher.utter_message(text=message)
+            else:
+                dispatcher.utter_message(text="API請求失敗或數據解析錯誤")
+        else:
+            dispatcher.utter_message(text="API請求失敗或發生錯誤")
+            print('API請求失敗或發生錯誤')
+
+        return []
 
 # class ActionIrrelevantTopic(Action):
 #     def name(self):
