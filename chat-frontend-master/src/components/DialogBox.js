@@ -3,10 +3,10 @@ import greetrobot from '../assets/greetrobot.png';
 
 function DialogBox({ onScaffoldClick }) {
   const scaffoldOptions = [
-    '我想研究...。',
-    '我對...感到好奇。',
+    '我想研究...',
+    '我對...感到好奇',
     '我想要了解為什麼...?',
-    '我還不知道要研究什麼。',
+    '我還不知道要研究什麼',
     '我的研究問題是...?',
     '我想查詢相關作品：請輸入關鍵字',
   ];

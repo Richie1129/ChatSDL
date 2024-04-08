@@ -27,6 +27,14 @@ stories:
   - intent: bad_science_fair_question
   - action: utter_bad_question_detected
 
+- story: Chemistry topic selection
+  steps:
+    - intent: choose_discipline
+    - action: action_save_science_discipline
+    - intent: choose_topic
+    - action: action_explore_chemistry_topic
+    - intent: choose_subtopic
+    - action: action_save_chemistry_subtopic
 
 # - story: irrelevant_topic
 #   steps:

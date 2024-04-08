@@ -14,6 +14,7 @@
 from typing import Any, Text, Dict, List
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
+from rasa_sdk.events import SlotSet
 import requests
  
 # topic_check
@@ -176,9 +177,7 @@ class ActionEvaluateScienceFairQuestion(Action):
         except requests.RequestException as error:
             print(f'API請求錯誤: {error}')
             dispatcher.utter_message(text="API請求過程中發生錯誤")
-
-    
-    
+   
 class ActionFallback(Action):
     def name(self):
         return "action_fallback"
@@ -216,8 +215,170 @@ class ActionFallback(Action):
             dispatcher.utter_message(text="API請求過程中發生錯誤")
 
         return []
+    
+class ActionStartDecisionTree(Action):
+    def name(self):
+        return "action_start_decision_tree"
 
+    def run(self, dispatcher, tracker, domain):
+        dispatcher.utter_message(text="讓我們來確定一個研究主題，你對以下哪一個領域感興趣。請輸入：物理、化學、地球科學或生物。")
+        return []
+
+class ActionSaveScienceDiscipline(Action):
+    def name(self):
+        return "action_save_science_discipline"
+
+    def run(self, dispatcher, tracker, domain):
+        text = tracker.latest_message.get('text')
+
+        if "化學" in text:
+            dispatcher.utter_message(
+                text="你對化學感興趣。請問你想探索化學的哪個主題。\n"
+                     "例如：能量的形式與轉換\n"
+                     "物質的分離與鑑定\n"
+                     "物質的結構與功能\n"
+                     "組成地球的物質\n"
+                     "水溶液中的變化\n"
+                     "氧化與還原反應\n"
+                     "酸鹼反應\n"
+                     "科學在生活中的應用\n"
+                     "天然災害與防治\n"
+                     "環境汙染與防治\n"
+                     "氣候變遷之影響與調適\n"
+                     "能源的開發與利用\n"
+            )
             
+            return [SlotSet("science_discipline", "chemistry")]
+
+        # elif "物理" in text:
+        #     dispatcher.utter_message(text="你對物理感興趣。請問你想探索哪個方向的物理，例如能量的形式與轉換、宇宙與天體、電磁現象等。")
+        #     return [SlotSet("science_discipline", "physics")]
+        
+        # elif "生物" in text:
+        #     dispatcher.utter_message(text="你對生物感興趣。請問你想探索哪個方向的生物，例如生殖與遺傳、生物多樣性、基因改造食品的安全性等。")
+        #     return [SlotSet("science_discipline", "biology")]
+        
+        # elif "地科" in text or "地球科學" in text:
+        #     dispatcher.utter_message(text="你對地球科學感興趣。請問你想探索哪個方向的地球科學，例如地表與地殼的變動、氣候變化、天然災害與防治等。")
+        #     return [SlotSet("science_discipline", "earth_science")]
+
+        else:
+            dispatcher.utter_message(text="不好意思，我沒有理解你的意思。你能說得更具體一點嗎？")
+            return []
+
+class ActionExploreChemistryTopic(Action):
+    def name(self):
+        return "action_explore_chemistry_topic"
+
+    def run(self, dispatcher, tracker, domain):
+        text = tracker.latest_message.get('text')
+
+        if "能量的形式與轉換" in text:
+            dispatcher.utter_message(
+                text="你選擇了能量的形式與轉換。請問你對以下哪個更感興趣。\n"
+                     "I. 化學反應中的能量變化\n"
+                     "II. 化學反應熱"
+            )
+            return [SlotSet("chemistry_topic", "energy_transformation")]
+
+        if "物質的分離與鑑定" in text:
+            dispatcher.utter_message(
+                text="你選擇了物質的分離與鑑定")
+            return [SlotSet("chemistry_topic", "substance_separation_identification")]
+
+        if "物質的結構與功能" in text:
+            dispatcher.utter_message(
+                text="你選擇了物質的結構與功能。請問你對以下哪個更感興趣。\n"
+                     "I. 化學式\n"
+                     "II. 物質化學式的鑑定\n"
+                     "III. 物質的結構\n"
+                     "IV. 分子模型介紹"
+            )
+            return [SlotSet("chemistry_topic", "substance_structure_function")]
+
+        if "組成地球的物質" in text:
+            dispatcher.utter_message(
+                text="你選擇了組成地球的物質。請問你對以下哪個更感興趣。\n"
+                     "I. 自然界中的物質循環\n"
+                     "II. 水的性質及影響\n"
+                     "III. 水質的淨化、純化與軟化\n"
+                     "IV. 海水中蘊藏的資源\n"
+                     "V. 空氣中所含的物質"
+            )
+            return [SlotSet("chemistry_topic", "earth_materials")]
+
+        if "水溶液中的變化" in text:
+            dispatcher.utter_message(
+                text="你選擇了水溶液中的變化。請問你對以下哪個更感興趣。\n"
+                     "I. 水溶液與濃度"
+            )
+            return [SlotSet("chemistry_topic", "aqueous_solutions")]
+
+        if "氧化與還原反應" in text:
+            dispatcher.utter_message(
+                text="你選擇了氧化與還原反應。"
+            )
+            return [SlotSet("chemistry_topic", "oxidation_reduction_reactions")]
+
+        if "酸鹼反應" in text:
+            dispatcher.utter_message(
+                text="你選擇了酸鹼反應。"
+            )
+            return [SlotSet("chemistry_topic", "acid_base_reactions")]
+
+        if "科學在生活中的應用" in text:
+            dispatcher.utter_message(
+                text="你選擇了科學在生活中的應用。請問你對以下哪個更感興趣。\n"
+                     "I. 食品與化學\n"
+                     "II. 衣料與高分子化學\n"
+                     "III. 肥皂與清潔劑\n"
+                     "IV. 高分子材料與化學：塑膠\n"
+                     "V. 實驗：鼻涕蟲\n"
+                     "VI. 陶瓷磚瓦和玻璃\n"
+                     "VII. 奈米材料、先進材料\n"
+                     "VIII. 藥物與化學"
+            )
+            return [SlotSet("chemistry_topic", "science_in_life_applications")]
+
+        if "天然災害與防治" in text:
+            dispatcher.utter_message(
+                text="你選擇了天然災害與防治。"
+            )
+            return [SlotSet("chemistry_topic", "natural_disasters_prevention")]
+
+        if "環境汙染與防治" in text:
+            dispatcher.utter_message(
+                text="你選擇了環境汙染與防治。請問你對以下哪個更感興趣。\n"
+                     "I. 水汙染與防治\n"
+                     "II. 大氣汙染與防治"
+            )
+            return [SlotSet("chemistry_topic", "environmental_pollution_control")]
+
+        if "氣候變遷之影響與調適" in text:
+            dispatcher.utter_message(
+                text="你選擇了氣候變遷之影響與調適。"
+            )
+            return [SlotSet("chemistry_topic", "climate_change_impact_adaptation")]
+
+        if "能源的開發與利用" in text:
+            dispatcher.utter_message(
+                text="你選擇了能源的開發與利用。請問你對以下哪個更感興趣。\n"
+                     "I. 化石燃料：煤、石油、天然氣\n"
+                     "II. 石油分餾及其主要產物\n"
+                     "III. 烴的燃燒與汽油辛烷值\n"
+                     "IV. 化學電池原理\n"
+                     "V. 常見的電池\n"
+                     "VI. 實驗：化學電池\n"
+                     "VII. 替代能源\n"
+                     "VIII. 簡介臺灣的再生能源及附近海域能源的蘊藏與開發"
+            )
+            return [SlotSet("chemistry_topic", "energy_development_utilization")]
+
+        # 可以根據需要添加其他化學主題的處理
+
+        return []
+
+
 # class ActionIrrelevantTopic(Action):
 #     def name(self):
 #         return "action_irrelevant_topic"

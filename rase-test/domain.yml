@@ -8,6 +8,9 @@ intents:
 - good_science_fair_question
 - submit_science_fair_question
 - nlu_fallback
+- choose_discipline
+- choose_topic
+- choose_subtopic
 # - explore_topic
 
 responses:
@@ -23,8 +26,6 @@ responses:
   - text: "放心，我們可以慢慢來。讓我們深入探討一下，想想你最近在學校或透過新聞、個人興趣發現的科學話題。有沒有什麼特別引起你好奇的科學現象或發現，可以分享一下你的想法或疑問嗎？"
   - text: "我們可以從你感興趣的地方開始。回想一下，近期有沒有在學校學到的科學概念，或者通過追蹤新聞、從事愛好活動時發現的科學相關話題，讓你產生了探究的欲望？試著描述那些激發你好奇心的瞬間。"
   - text : "讓我們慢慢來，從你感到好奇的事物開始。在最近的學習中、新聞報導或你的個人愛好中，有沒有什麼科學相關的內容吸引了你的注意？"
-  utter_ask_keywords:
-    - text: "請輸入關鍵字"
 
 actions:
 - action_topic_response
@@ -35,12 +36,40 @@ actions:
 - utter_good_question_detected
 - action_evaluate_science_fair_question
 - action_fallback
+- action_start_decision_tree
+- action_save_science_discipline
+- action_explore_chemistry_topic
+- action_save_chemistry_topic
+- action_save_chemistry_subtopic
+
 # - action_irrelevant_topic
 
 entities:
   - research_question
   - topic
   - idea
+  - science_discipline
+  - chemistry_topic
+  - chemistry_subtopic
+
+slots:
+  science_discipline:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_text
+
+  chemistry_topic:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_text
+
+  chemistry_subtopic:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_text
 
 session_config:
   session_expiration_time: 60

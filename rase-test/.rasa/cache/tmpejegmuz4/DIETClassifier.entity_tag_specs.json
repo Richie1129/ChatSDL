@@ -1,0 +1,36 @@
+[
+  {
+    "tag_name": "entity",
+    "ids_to_tags": {
+      "1": "B-idea",
+      "2": "I-idea",
+      "3": "L-idea",
+      "4": "U-idea",
+      "5": "B-research_question",
+      "6": "I-research_question",
+      "7": "L-research_question",
+      "8": "U-research_question",
+      "9": "B-topic",
+      "10": "I-topic",
+      "11": "L-topic",
+      "12": "U-topic",
+      "0": "O"
+    },
+    "tags_to_ids": {
+      "B-idea": 1,
+      "I-idea": 2,
+      "L-idea": 3,
+      "U-idea": 4,
+      "B-research_question": 5,
+      "I-research_question": 6,
+      "L-research_question": 7,
+      "U-research_question": 8,
+      "B-topic": 9,
+      "I-topic": 10,
+      "L-topic": 11,
+      "U-topic": 12,
+      "O": 0
+    },
+    "num_tags": 13
+  }
+]

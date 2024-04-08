@@ -166,6 +166,28 @@ nlu:
     - 我的研究問題是探討[化石記錄如何幫助我們了解生物演化的歷史](research_question)
     - 我想探究的問題是調查[本地生態系統中物種多樣性與生態系統健康之間的關係](research_question)
 
+- intent: choose_discipline
+  examples: |
+    - 化學
+    - 物理
+    - 地科
+    - 地球科學
+    - 生物
+    - 我對化學感興趣
+    - 我想學化學
+    - 談談化學
+    - 我想知道關於化學的信息
+
+- intent: choose_topic
+  examples: |
+    - 能量的形式與轉換
+    - 物質的分離與鑑定
+
+- intent: choose_subtopic
+  examples: |
+    - 化學反應中的能量變化
+    - 化學反應熱
+
 # - intent: explore_topic
 #   examples: |
 #     - 我想了解[能量的形式與轉換](topic)

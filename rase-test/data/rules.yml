@@ -16,6 +16,33 @@ rules:
   steps:
   - intent: no_idea_check
   - action: utter_no_idea_check
+  - action: action_start_decision_tree
+
+# 處理科目選擇後的動作
+- rule: Save Science Discipline
+  condition:
+    - active_loop: null
+  steps:
+    - intent: choose_discipline
+    - action: action_save_science_discipline
+
+# 處理化學主題選擇後的動作
+- rule: Save Chemistry Topic
+  condition:
+    - slot_was_set:
+        - science_discipline: "chemistry"
+  steps:
+    - intent: choose_topic
+    - action: action_explore_chemistry_topic
+
+# 處理化學子主題選擇後的動作
+- rule: Explore Chemistry Subtopic
+  condition:
+    - slot_was_set:
+        - chemistry_topic: "energy_transformation"
+  steps:
+    - intent: choose_subtopic
+    - action: action_save_chemistry_subtopic
 
 - rule: Fallback rule
   steps:
