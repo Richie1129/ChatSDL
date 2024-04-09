@@ -57,7 +57,7 @@ const ChatRoom = () => {
             
                 if (Array.isArray(searchResults)) {
                     searchResults.forEach(result => {
-                        setMessages(currentMessages => [...currentMessages, { text: result, type: 'response' }]);
+                        setMessages(currentMessages => [...currentMessages, { text: result, type: 'response', isHTML: true }]);
                     });
                 } else {
                     console.error('返回的數據不是陣列');
@@ -147,7 +147,20 @@ const ChatRoom = () => {
                         // 分段處理
                         const splitMessages = message.text.split('\n').filter(msg => msg.trim() !== '');
                         splitMessages.forEach(msg => {
-                            setMessages(currentMessages => [...currentMessages, { text: msg, type: 'response' }]);
+                            // 檢查訊息是否包含超連結
+                            const urlRegex = /(http[s]?:\/\/[^\s]+)/g;
+                            const matchedUrls = msg.match(urlRegex);
+                            if (matchedUrls) {
+                                // 將訊息中的 URL 轉換成可點擊的超連結
+                                matchedUrls.forEach(url => {
+                                    msg = msg.replace(url, `<a href="${url}" target="_blank">${url}</a>`);
+                                });
+                                // 使用 'html' 類型來渲染 HTML 內容
+                                setMessages(currentMessages => [...currentMessages, { text: msg, type: 'html', isHTML: true }]);
+                            } else {
+                                // 如果訊息中不包含超連結，則正常顯示
+                                setMessages(currentMessages => [...currentMessages, { text: msg, type: 'response', isHTML: true }]);
+                            }
                         });
             
                         const responseMessageData = {
@@ -248,22 +261,24 @@ const ChatRoom = () => {
                 <div className="selected-option">{selectedOption}</div>
                 {tempMessage && <div className="temp-message">{tempMessage}</div>}
                 <div className="messages">
-                {messages.map((message, index) => (
-                    <div key={index} className={`message ${message.type === 'user' ? 'user-message' : 'response-message'}`}>
-                        {message.type === 'user' && <FaUser className="user-icon" />}
-                        <div className="message-content">
-                            {message.link ? (
-                                <>
-                                    <div>{message.text.split('\n')[0]}</div>
-                                    <a href={message.link} target="_blank" rel="noopener noreferrer">{message.link}</a>
-                                    <div>{message.text.split('\n').slice(2).join('\n')}</div>
-                                </>
-                            ) : (
-                                message.text
-                            )}
+                    {messages.map((message, index) => (
+                        <div key={index} className={`message ${message.type === 'user' ? 'user-message' : 'response-message'}`}>
+                            {message.type === 'user' && <FaUser className="user-icon" />}
+                            <div className="message-content">
+                                {message.isHTML ? (
+                                    <div dangerouslySetInnerHTML={{ __html: message.text }}></div>
+                                ) : message.link ? (
+                                    <>
+                                        <div>{message.text.split('\n')[0]}</div>
+                                        <a href={message.link} target="_blank" rel="noopener noreferrer">{message.link}</a>
+                                        <div>{message.text.split('\n').slice(2).join('\n')}</div>
+                                    </>
+                                ) : (
+                                    <div>{message.text}</div>
+                                )}
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    ))}
                 </div>
                 <div className="message-input">
                     <FaUser className="user-icon" />

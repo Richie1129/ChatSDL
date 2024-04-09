@@ -32,17 +32,44 @@ rules:
     - slot_was_set:
         - science_discipline: "chemistry"
   steps:
-    - intent: choose_topic
+    - intent: choose_chemistry_topic
     - action: action_explore_chemistry_topic
 
-# 處理化學子主題選擇後的動作
-- rule: Explore Chemistry Subtopic
+# 處理物理主題選擇後的動作
+- rule: Save Physics Topic
   condition:
     - slot_was_set:
-        - chemistry_topic: "energy_transformation"
+        - science_discipline: "physics"
+  steps:
+    - intent: choose_physics_topic
+    - action: action_explore_physics_topic
+
+# 處理生物主題選擇後的動作
+- rule: Save Biology Topic
+  condition:
+    - slot_was_set:
+        - science_discipline: "biology"
+  steps:
+    - intent: choose_biology_topic
+    - action: action_explore_biology_topic
+
+# 處理物理地科選擇後的動作
+- rule: Save Earth Science Topic
+  condition:
+    - slot_was_set:
+        - science_discipline: "earth science"
+  steps:
+    - intent: choose_earth_science_topic
+    - action: action_explore_earth_science_topic
+
+# 處理子主題選擇後的動作
+- rule: Explore Science Subtopic
+  condition:
+    - slot_was_set:
+        - subtopic: ["physics_energy_transformation", "substance_separation_identification", "temperature_and_heat", "force_and_motion", "universe_and_celestial","gravitation","waves_light_sound","electromagnetism","quantum_phenomena","physics_in_life_applications","substance_separation_identification","chemistry_energy_transformation","substance_structure_function","earth_materials","aqueous_solutions","oxidation_reduction_reactions","acid_base_reactions","science_in_life_applications","natural_disasters_prevention","environmental_pollution_control","climate_change_impact_adaptation","energy_development_utilization","reproduction_genetics","evolution","biodiversity","genetic_modification","weather_climate_change","day_night_seasons","natural_disasters_prevention","sustainable_development_resource_use","climate_change_impacts_adaptation"]
   steps:
     - intent: choose_subtopic
-    - action: action_save_chemistry_subtopic
+    - action: action_save_subtopic
 
 - rule: Fallback rule
   steps:

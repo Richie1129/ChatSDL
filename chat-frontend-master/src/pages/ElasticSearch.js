@@ -36,15 +36,16 @@ export const fetchElasticSearchResults = async (search_terms, topK = 5) => {
         const hits = response.data.hits.hits;
         const topHits = hits.length > topK ? hits.slice(0, topK) : hits;
 
-        // 將每個結果格式化為字符串
+        // 將每個結果格式化為 HTML 字符串
         return topHits.map(hit => {
             const doc_source = hit._source;
-            return `科目: ${doc_source["科目"] || "未提供科目"}\n` +
-                   `分數: ${hit['_score']}\n` +
-                   `名稱: ${doc_source["名稱"] || "未提供名稱"}\n` +
-                   `摘要: ${doc_source["摘要"] || "未提供摘要"}\n` +
-                   `關鍵字: ${doc_source["關鍵字"] || "未提供關鍵詞"}\n` +
-                   `連結: ${doc_source["連結"] || "未提供關鍵詞"}`;
+            const link = doc_source["連結"] || "#"; // 如果沒有提供連結，則使用預設值
+            return `科目: ${doc_source["科目"] || "未提供科目"}<br>` +
+                `分數: ${hit['_score']}<br>` +
+                `名稱: ${doc_source["名稱"] || "未提供名稱"}<br>` +
+                `摘要: ${doc_source["摘要"] || "未提供摘要"}<br>` +
+                `關鍵字: ${doc_source["關鍵字"] || "未提供關鍵詞"}<br>` +
+                `連結: <a href="${link}" target="_blank">${link}</a>`; // 使用 <a> 標籤創建超連結
         });
     } catch (error) {
         console.error('Elasticsearch 查詢錯誤:', error);

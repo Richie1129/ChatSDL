@@ -9,7 +9,10 @@ intents:
 - submit_science_fair_question
 - nlu_fallback
 - choose_discipline
-- choose_topic
+- choose_chemistry_topic
+- choose_physics_topic
+- choose_biology_topic
+- choose_earth_science_topic
 - choose_subtopic
 # - explore_topic
 
@@ -28,9 +31,9 @@ responses:
   - text : "讓我們慢慢來，從你感到好奇的事物開始。在最近的學習中、新聞報導或你的個人愛好中，有沒有什麼科學相關的內容吸引了你的注意？"
 
 actions:
-- action_topic_response
 - utter_greet
 - utter_no_idea_check
+- action_topic_response
 - action_idea_response
 - utter_bad_question_detected
 - utter_good_question_detected
@@ -39,8 +42,10 @@ actions:
 - action_start_decision_tree
 - action_save_science_discipline
 - action_explore_chemistry_topic
-- action_save_chemistry_topic
-- action_save_chemistry_subtopic
+- action_explore_physics_topic
+- action_explore_biology_topic
+- action_explore_earth_science_topic
+- action_save_subtopic
 
 # - action_irrelevant_topic
 
@@ -49,8 +54,7 @@ entities:
   - topic
   - idea
   - science_discipline
-  - chemistry_topic
-  - chemistry_subtopic
+  - subtopic
 
 slots:
   science_discipline:
@@ -59,13 +63,7 @@ slots:
     mappings:
       - type: from_text
 
-  chemistry_topic:
-    type: text
-    influence_conversation: true
-    mappings:
-      - type: from_text
-
-  chemistry_subtopic:
+  subtopic:
     type: text
     influence_conversation: true
     mappings:

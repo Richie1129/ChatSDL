@@ -30,11 +30,46 @@ stories:
 - story: Chemistry topic selection
   steps:
     - intent: choose_discipline
+      entities:
+          - science_discipline: "chemistry"
     - action: action_save_science_discipline
-    - intent: choose_topic
+    - intent: choose_chemistry_topic
     - action: action_explore_chemistry_topic
     - intent: choose_subtopic
-    - action: action_save_chemistry_subtopic
+    - action: action_save_subtopic
+
+- story: Physics topic selection
+  steps:
+    - intent: choose_discipline
+      entities:
+        - science_discipline: "physics"
+    - action: action_save_science_discipline
+    - intent: choose_physics_topic
+    - action: action_explore_physics_topic
+    - intent: choose_subtopic
+    - action: action_save_subtopic
+
+- story: Biology topic selection
+  steps:
+    - intent: choose_discipline
+      entities:
+        - science_discipline: "biology"
+    - action: action_save_science_discipline
+    - intent: choose_biology_topic
+    - action: action_explore_biology_topic
+    - intent: choose_subtopic
+    - action: action_save_subtopic
+    
+- story: Earth Science topic selection
+  steps:
+    - intent: choose_discipline
+      entities:
+        - science_discipline: "earth_science"
+    - action: action_save_science_discipline
+    - intent: choose_earth_science_topic
+    - action: action_explore_earth_science_topic
+    - intent: choose_subtopic
+    - action: action_save_subtopic
 
 # - story: irrelevant_topic
 #   steps:
