@@ -2,15 +2,22 @@ version: "3.1"
 
 rules:
 
-- rule: Topic Check Rule
-  steps:
-  - intent: topic_check
-  - action: action_topic_response
+# - rule: Topic Check Rule
+#   steps:
+#   - intent: topic_check
+#   - action: utter_topic
+#   # - action: action_rag_abstract_explain
+
+# - rule: response_topic
+#   steps: 
+#   - intent: user_responds_to_topic
+#   - action: action_topic_response
 
 - rule: Idea Check Rule
   steps:
   - intent: idea_check
-  - action: action_idea_response
+  - action: utter_curiosity
+  # - action: action_idea_response
 
 - rule: No Idea Check Rule
   steps:
@@ -53,7 +60,7 @@ rules:
     - intent: choose_biology_topic
     - action: action_explore_biology_topic
 
-# 處理物理地科選擇後的動作
+# 處理地科選擇後的動作
 - rule: Save Earth Science Topic
   condition:
     - slot_was_set:
@@ -66,10 +73,13 @@ rules:
 - rule: Explore Science Subtopic
   condition:
     - slot_was_set:
-        - subtopic: ["physics_energy_transformation", "substance_separation_identification", "temperature_and_heat", "force_and_motion", "universe_and_celestial","gravitation","waves_light_sound","electromagnetism","quantum_phenomena","physics_in_life_applications","substance_separation_identification","chemistry_energy_transformation","substance_structure_function","earth_materials","aqueous_solutions","oxidation_reduction_reactions","acid_base_reactions","science_in_life_applications","natural_disasters_prevention","environmental_pollution_control","climate_change_impact_adaptation","energy_development_utilization","reproduction_genetics","evolution","biodiversity","genetic_modification","weather_climate_change","day_night_seasons","natural_disasters_prevention","sustainable_development_resource_use","climate_change_impacts_adaptation"]
+        - subtopic: true
+        # ["physics_energy_transformation", "substance_separation_identification", "temperature_and_heat", "force_and_motion", "universe_and_celestial","gravitation","waves_light_sound","electromagnetism","quantum_phenomena","physics_in_life_applications","substance_separation_identification","chemistry_energy_transformation","substance_structure_function","earth_materials","aqueous_solutions","oxidation_reduction_reactions","acid_base_reactions","science_in_life_applications","natural_disasters_and_prevention","natural_disasters_and_prevention_chemistry","environmental_pollution_control","climate_change_impact_adaptation","energy_development_utilization","reproduction_genetics","evolution","biodiversity","genetic_modification","weather_climate_change","day_night_seasons","natural_disasters_prevention_earth_science","sustainable_development_resource_use","climate_change_impacts_adaptation"]
   steps:
     - intent: choose_subtopic
     - action: action_save_subtopic
+    - action: action_reset_subtopic  # 讓Rasa等待下一個用戶輸入並判斷意圖
+
 
 - rule: Fallback rule
   steps:

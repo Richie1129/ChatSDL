@@ -45,16 +45,21 @@ function App() {
             .catch(error => console.log(error));
     }, []);
 
-    useEffect(() => {
-        if (messages.length === 0) {
-            setTimeout(() => {
-                const defaultMessage = { id: 1, text: "嗨！我是一位專門輔導高中生科學探究與實作的自然科學導師。我會用適合高中生的語言，保持專業的同時，幫助你探索自然科學的奧秘，並引導你選擇一個有興趣的科展主題，以及更深入了解你的研究問題。今天我們來一起找出一個適合你的科學探究主題。準備好了嗎？還是你已經有的'主題'或是'想法'了嗎？", sender: 'Bot', className_p: "message_bot_p", className_span: "message_bot_span" };
-                setMessages([defaultMessage]);
-            }, 1000); // 延遲1000毫秒（1秒）
-        }
-    }, [messages]);
+    // useEffect(() => {
+    //     if (messages.length === 0) {
+    //         setTimeout(() => {
+    //             const defaultMessage = { id: 1, text: "嗨！我是一位專門輔導高中生科學探究與實作的自然科學導師。我會用適合高中生的語言，保持專業的同時，幫助你探索自然科學的奧秘，並引導你選擇一個有興趣的科展主題，以及更深入了解你的研究問題。今天我們來一起找出一個適合你的科學探究主題。準備好了嗎？還是你已經有的'主題'或是'想法'了嗎？", sender: 'Bot', className_p: "message_bot_p", className_span: "message_bot_span" };
+    //             setMessages([defaultMessage]);
+    //         }, 1000); // 延遲1000毫秒（1秒）
+    //     }
+    // }, [messages]);
 
-    const sendMessage = (message) => {
+    function sendButtonPayload(payload) {
+        // 這個函數將使用者點擊的按鈕payload發送到Rasa
+        sendMessage(payload);
+    }
+
+    function sendMessage(message, userId) {
         if (message.trim() === "") return;
 
         const newMessage = { id: messages.length + 1, text: message, sender: 'Me', className_p: "message_user_p", className_span: "message_user_span" };
@@ -77,6 +82,11 @@ function App() {
             })
             .catch(error => console.error('Error:', error));
     };
+    function sendButtonPayload(payload) {
+        sendMessage(payload);  // 使用 sendMessage 函數發送按鈕的 payload
+    }
+
+    
 
     return (
         <AppContext.Provider value={{ socket, currentRoom, setCurrentRoom, members, setMembers, messages, setMessages, privateMemberMsg, setPrivateMemberMsg, rooms, setRooms, newMessages, setNewMessages, showinferenceData, showInferenceData }}>
@@ -105,3 +115,4 @@ function App() {
 }
 
 export default App;
+// export { sendMessage, sendButtonPayload };

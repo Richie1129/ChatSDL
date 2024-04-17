@@ -7,25 +7,44 @@ stories:
   - intent: greet
   - action: utter_greet
 
-- story: system persona followed by topic discussion
+- story: topic discussion for more info
   steps:
   - intent: topic_check
-  - action: action_topic_response
+  - action: utter_topic
+  # - action: action_rag_abstract_explain
+  # - intent: idea_check
+  # - action: utter_curiosity
+  # - action: action_topic_response
+  # - intent: user_responds_to_topic
+  # - action: action_topic_response
 
-- story: system persona followed by idea discussion
+- story: topic discussion no idea
   steps:
-  - intent: idea_check
-  - action: action_idea_response
+  - intent: topic_check
+  - action: utter_topic
+  # - action: action_rag_abstract_explain
+  # - intent: no_idea_check
+  # - action: action_save_subtopic
+ 
+# - story: system persona followed by idea discussion
+#   steps:
+#   - intent: idea_check
+#   - action: action_idea_response
+- story: No Idea
+  steps:
+  - intent: no_idea_for_decision_tree
+  - action: utter_no_idea_check
+  - action: action_start_decision_tree
 
-# 判斷研究問題好壞
-- story: Detect science fair question quality
-  steps:
-  - intent: submit_science_fair_question
-  - action: action_evaluate_science_fair_question
-  - intent: good_science_fair_question
-  - action: utter_good_question_detected
-  - intent: bad_science_fair_question
-  - action: utter_bad_question_detected
+# # 判斷研究問題好壞
+# - story: Detect science fair question quality
+#   steps:
+#   - intent: submit_science_fair_question
+#   - action: action_evaluate_science_fair_question
+#   - intent: good_science_fair_question
+#   - action: utter_good_question_detected
+#   - intent: bad_science_fair_question
+#   - action: utter_bad_question_detected
 
 - story: Chemistry topic selection
   steps:
@@ -37,6 +56,7 @@ stories:
     - action: action_explore_chemistry_topic
     - intent: choose_subtopic
     - action: action_save_subtopic
+    - action: action_reset_subtopic  # 讓Rasa等待下一個用戶輸入並判斷意圖
 
 - story: Physics topic selection
   steps:
@@ -48,6 +68,7 @@ stories:
     - action: action_explore_physics_topic
     - intent: choose_subtopic
     - action: action_save_subtopic
+    - action: action_reset_subtopic  # 讓Rasa等待下一個用戶輸入並判斷意圖
 
 - story: Biology topic selection
   steps:
@@ -59,6 +80,7 @@ stories:
     - action: action_explore_biology_topic
     - intent: choose_subtopic
     - action: action_save_subtopic
+    - action: action_reset_subtopic  # 讓Rasa等待下一個用戶輸入並判斷意圖
     
 - story: Earth Science topic selection
   steps:
@@ -70,6 +92,22 @@ stories:
     - action: action_explore_earth_science_topic
     - intent: choose_subtopic
     - action: action_save_subtopic
+    - action: action_reset_subtopic  # 讓Rasa等待下一個用戶輸入並判斷意圖
+
+- story: Detailed subtopic exploration for research
+  steps:
+    - intent: research_subtopic
+      entities:
+        - subtopic: "{{subtopic}}"
+    - action: utter_topic
+    - intent: user_responds_to_topic
+    - action: action_rag_5W1H
+
+- story: 科學名詞定義/為什麼
+  steps:
+    - intent: definition/why
+    - action: action_rag_abstract_explain
+
 
 # - story: irrelevant_topic
 #   steps:

@@ -52,6 +52,17 @@
     flex-direction: column;
 }
 
+.buttons-container {
+    display: flex;
+    flex-direction: column; /* 讓按鈕垂直排列 */
+    align-items: flex-start; /* 對齊到容器的起始邊 */
+}
+
+.button {
+    margin-bottom: 10px; /* 在按鈕之間添加間隔 */
+    /* 其他按鈕樣式 */
+}
+
 .message {
     display: flex; /* 修改：使用flex布局 */
     align-items: center; /* 新增：垂直居中對齊 */

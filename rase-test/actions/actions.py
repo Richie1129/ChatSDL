@@ -13,9 +13,32 @@
 # actions.py
 from typing import Any, Text, Dict, List
 from rasa_sdk import Action, Tracker
+from rasa_sdk.interfaces import Tracker
 from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.events import SlotSet
 import requests
+import random
+import json
+import re
+from .faq import get_topics  # 確保這個導入正確
+
+class ActionExplorePhysicsTopic(Action):
+    def name(self):
+        return "action_explore_physics_topic"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker, domain):
+        text = tracker.latest_message.get('text')
+        topics = get_topics()["physics"]['topics']  # 直接訪問物理主題
+
+        # 根據用戶選擇的主題提供子主題選項
+        if text in topics:
+            subtopics = topics[text]['subtopics']
+            message = f"{topics[text]['description']} 請選擇一個子主題：\n" + \
+                      "\n".join([f"{i+1}. {sub}" for i, sub in enumerate(subtopics)])
+            dispatcher.utter_message(text=message)
+            return [SlotSet("topic", text)]  # 存儲所選的主題供後續使用
+
+        return []
  
 # topic_check
 class ActionTopicResponse(Action):
@@ -23,45 +46,233 @@ class ActionTopicResponse(Action):
         return "action_topic_response"
 
     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: dict):
-        system_persona = (
-            "你是一名高中科學探究與實作的自然科的老師，你的關鍵任務是引導學生發想。"
-            "當學生提出主題後，利用what、how、why的方法進行研究主題的發想引導學生深入理解主題。"
-            "回覆的內容最多不能超過300字。回覆的內容必須是繁體中文。"
-        )
+        # system_persona = (
+        #     "你是一名高中科學探究與實作的自然科的老師"
+        #     "你的關鍵任務是引導學生發想。"
+        #     "利用what、how、why中的兩種即可，進行主題的發想引導學生深入理解主題。"
+        #     "回覆中不能有'學生'的字樣，回覆學生的問題不要超過兩個"
+        # )
         print("主題確認")
         input_message = tracker.latest_message.get('text')
         topic_entities = [e['value'] for e in tracker.latest_message['entities'] if e['entity'] == 'topic']
         topic_str = ', '.join(topic_entities)
         enriched_input = f"{input_message} (主題: {topic_str})" if topic_entities else input_message
 
-        url = "http://ml.hsueh.tw/callapi/"
+        url = "http://ml.hsueh.tw:1288/query/"
         data = {
-            "engine": "wulab",
+            "question": enriched_input
+        }
+        headers = {
+            'accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
+
+        # 發送請求
+        response = requests.post(url, json=data, headers=headers)
+
+        responses = []  # 創建一個空陣列來儲存回應
+
+        if response.status_code == 200:
+            response_data = response.json()
+            responses.append(response_data['response'])  # 將回應加入到陣列中
+            # print(response_data['response'])
+        else:
+            print(f"第一個請求失敗，狀態碼：{response.status_code}")
+
+        # 檢查 responses 是否有內容，如果有則繼續
+        if responses:
+            # 第二個 API 的 URL 和請求體
+            url2 = "http://ml.hsueh.tw/callapi/"
+            content = responses[0]  # 取第一個元素作為 content
+
+            data2 = {
+            "engine": "taiwan-llama",
             "temperature": 0.7,
             "max_tokens": 300,
             "top_p": 0.95,
             "top_k": 5,
-            "roles": [{"role": "system", "content": system_persona},{"role": "user", "content": enriched_input} ],
+            "roles": [
+                {
+                "role": "system",
+                "content": content
+                },{
+                "role": "user",
+                "content": "你必須使用5W1H框架的問句，給我一個問題，不要包含任何答案。"
+                           "回答只能使用繁體中文，回答中不要提供任何答案。"
+                }
+            ],
             "frequency_penalty": 0,
             "repetition_penalty": 1.03,
             "presence_penalty": 0,
             "stop": "",
             "past_messages": 10,
             "purpose": "dev"
+            }
+
+            # 發送第二個請求
+            response2 = requests.post(url2, json=data2, headers=headers)
+
+            # 檢查回應狀態碼以確認請求成功
+            if response2.status_code == 200:
+                chat_response = response2.json()
+                if 'choices' in chat_response and len(chat_response['choices']) > 0:
+                    content2 = chat_response['choices'][0]['message']['content']
+                    dispatcher.utter_message(text=f"首先，你可以先想想這個問題:{content2}")
+                    # dispatcher.utter_message(text=content2)
+            else:
+                print(f"第二個請求失敗，狀態碼：{response2.status_code}")
+        else:
+            print("沒有回應可用於生成 what、how、why 問題。")
+
+        return []
+    
+# rag/prompt:摘要並解釋
+class ActionRagAbstract(Action):
+    def name(self):
+        return "action_rag_abstract_explain"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: dict):
+        print("Rag/摘要並名詞解釋")
+        input_message = tracker.latest_message.get('text')
+
+        url = "http://ml.hsueh.tw:1288/query/"
+        data = {
+            "question": input_message
         }
         headers = {
-            'Accept': 'application/json',
+            'accept': 'application/json',
             'Content-Type': 'application/json'
         }
 
-        try:
-            response = requests.post(url, json=data, headers=headers)
-            response.raise_for_status()
-            message_content = response.json().get('choices', [{}])[0].get('message', {}).get('content', '')
-            dispatcher.utter_message(text=message_content)
-        except requests.RequestException as error:
-            print(f'API請求錯誤: {error}')
-            dispatcher.utter_message(text="API請求過程中發生錯誤")
+        # 發送請求
+        response = requests.post(url, json=data, headers=headers)
+
+        responses = []  # 創建一個空陣列來儲存回應
+
+        if response.status_code == 200:
+            response_data = response.json()
+            responses.append(response_data['response'])  # 將回應加入到陣列中
+            # print(response_data['response'])
+        else:
+            print(f"第一個請求失敗，狀態碼：{response.status_code}")
+
+        # 檢查 responses 是否有內容，如果有則繼續
+        if responses:
+            # 第二個 API 的 URL 和請求體
+            url2 = "http://ml.hsueh.tw/callapi/"
+            content = responses[0]  # 取第一個元素作為 content
+
+            data2 = {
+            "engine": "taiwan-llama",
+            "temperature": 0.7,
+            "max_tokens": 500,
+            "top_p": 0.95,
+            "top_k": 5,
+            "roles": [
+                {
+                "role": "system",
+                "content": content
+                },{
+                "role": "user",
+                "content": "請根據內容，利用100字摘要"
+                           "回答只能使用繁體中文"
+                }
+            ],
+            "frequency_penalty": 0,
+            "repetition_penalty": 1.03,
+            "presence_penalty": 0,
+            "stop": "",
+            "past_messages": 10,
+            "purpose": "dev"
+            }
+
+            # 發送第二個請求
+            response2 = requests.post(url2, json=data2, headers=headers)
+
+            # 檢查回應狀態碼以確認請求成功
+            if response2.status_code == 200:
+                chat_response = response2.json()
+                if 'choices' in chat_response and len(chat_response['choices']) > 0:
+                    content2 = chat_response['choices'][0]['message']['content']
+                    dispatcher.utter_message(text=f"這邊是提出來的名詞解釋:\n{content2}")
+                    # dispatcher.utter_message(text=content2)
+            else:
+                print(f"第二個請求失敗，狀態碼：{response2.status_code}")
+        else:
+            print("請問需要什麼幫助呢?")
+
+        return []
+    
+# Rag/5W1H
+class ActionRagQuestion(Action):
+    def name(self):
+        return "action_rag_5W1H"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: dict):
+        print("Rag/5W1H")
+        input_message = tracker.latest_message.get('text')
+
+        url = "http://ml.hsueh.tw:1288/query/"
+        data = {"question": input_message}
+        headers = {
+            'accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
+
+        # 發送請求
+        response = requests.post(url, json=data, headers=headers)
+        responses = []  # 創建一個空陣列來儲存回應
+
+        if response.status_code == 200:
+            response_data = response.json()
+            responses.append(response_data['response'])  # 將回應加入到陣列中
+            # print(response_data['response'])
+        else:
+            print(f"第一個請求失敗，狀態碼：{response.status_code}")
+
+        # 檢查 responses 是否有內容，如果有則繼續
+        if responses:
+            # 第二個 API 的 URL 和請求體
+            url2 = "http://ml.hsueh.tw/callapi/"
+            content = responses[0]  # 取第一個元素作為 content
+
+            data2 = {
+            "engine": "taiwan-llama",
+            "temperature": 0.7,
+            "max_tokens": 500,
+            "top_p": 0.95,
+            "top_k": 5,
+            "roles": [
+                {
+                "role": "system",
+                "content": content
+                },{
+                "role": "user",
+                "content": "你必須使用5W1H框架的問句，給我一個問題，不要包含任何答案。"
+                           "回答只能使用繁體中文，回答中不要提供任何答案。"
+                }
+            ],
+            "frequency_penalty": 0,
+            "repetition_penalty": 1.03,
+            "presence_penalty": 0,
+            "stop": "",
+            "past_messages": 10,
+            "purpose": "dev"
+            }
+
+            # 發送第二個請求
+            response2 = requests.post(url2, json=data2, headers=headers)
+
+            # 檢查回應狀態碼以確認請求成功
+            if response2.status_code == 200:
+                chat_response = response2.json()
+                if 'choices' in chat_response and len(chat_response['choices']) > 0:
+                    content2 = chat_response['choices'][0]['message']['content']
+                    dispatcher.utter_message(text=f"首先，你可以先想想這個問題:\n{content2}")
+            else:
+                print(f"第二個請求失敗，狀態碼：{response2.status_code}")
+        else:
+            print("沒有回應可用於生成 what、how、why 問題。")
 
         return []
 
@@ -83,7 +294,7 @@ class ActionIdeaResponse(Action):
         enriched_input = f"{input_message} (想法: {idea_str})" if idea_entities else input_message
         url = "http://ml.hsueh.tw/callapi/"
         data = {
-            "engine": "wulab",
+            "engine": "taiwan-llama",
             "temperature": 0.7,
             "max_tokens": 300,
             "top_p": 0.95,
@@ -110,73 +321,74 @@ class ActionIdeaResponse(Action):
             print(f'API請求錯誤: {error}')
             dispatcher.utter_message(text="API請求過程中發生錯誤")
 
-class ActionEvaluateScienceFairQuestion(Action):
-    def name(self):
-        return "action_evaluate_science_fair_question"
+# 判斷問題好壞
+# class ActionEvaluateScienceFairQuestion(Action):
+#     def name(self):
+#         return "action_evaluate_science_fair_question"
 
-    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: dict):
-        print("判斷研究問題好壞")
+#     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: dict):
+#         print("判斷研究問題好壞")
 
-        # 獲取最新的用戶意圖
-        latest_intent = tracker.get_intent_of_latest_message()
+#         # 獲取最新的用戶意圖
+#         latest_intent = tracker.get_intent_of_latest_message()
 
-        # 嘗試獲取實體信息
-        entities = tracker.latest_message.get('entities', [])
-        research_question = next((e['value'] for e in entities if e['entity'] == 'research_question'), None)
+#         # 嘗試獲取實體信息
+#         entities = tracker.latest_message.get('entities', [])
+#         research_question = next((e['value'] for e in entities if e['entity'] == 'research_question'), None)
 
-        # 根據意圖和實體給出反饋
-        if latest_intent == 'bad_science_fair_question':
-            dispatcher.utter_message(response="utter_bad_question_detected")
-        elif latest_intent == 'good_science_fair_question' and research_question:
-            # 呼叫外部API評估研究問題
-            self.evaluate_question(research_question, dispatcher)
-        elif research_question:
-            # 如果有提取到研究主題的實體，但意圖不明確，也進行評估
-            self.evaluate_question(research_question, dispatcher)
-        else:
-            # 如果意圖不是預期中的，且沒有提取到實體
-            dispatcher.utter_message(text="我不確定你的問題是好是壞，能再詳細一點嗎？")
+#         # 根據意圖和實體給出反饋
+#         if latest_intent == 'bad_science_fair_question':
+#             dispatcher.utter_message(response="utter_bad_question_detected")
+#         elif latest_intent == 'good_science_fair_question' and research_question:
+#             # 呼叫外部API評估研究問題
+#             self.evaluate_question(research_question, dispatcher)
+#         elif research_question:
+#             # 如果有提取到研究主題的實體，但意圖不明確，也進行評估
+#             self.evaluate_question(research_question, dispatcher)
+#         else:
+#             # 如果意圖不是預期中的，且沒有提取到實體
+#             dispatcher.utter_message(text="我不確定你的問題是好是壞，能再詳細一點嗎？")
 
-        return []
+#         return []
 
-    def evaluate_question(self, research_question, dispatcher):
-        input_message = research_question
-        url = "http://ml.hsueh.tw/callapi/"
-        data = {
-            "engine": "wulab",
-            "temperature": 0.7,
-            "max_tokens": 800,
-            "top_p": 0.95,
-            "top_k": 5,
-            "roles": [{"role": "system", 
-                       "content": 
-                        "作為科學探究與實作的高中自然科學導師，您的任務:幫助學生提出的研究問題檢查以下條件，依據列點回答'是'或'否'，給予結論。"
-                        "1. 題目會不會對高中生太難"
-                        "2. 可否取得會自製相關的研究器材"
-                        "3. 研究材料是否容易取得"
-                        "4. 實驗是否安全"
-                        "5. 是否可以找到測量或紀錄的方法"},
-                      {"role": "user", "content": input_message}],
-            "frequency_penalty": 0,
-            "repetition_penalty": 1.03,
-            "presence_penalty": 0,
-            "stop": "",
-            "past_messages": 10,
-            "purpose": "dev"
-        }
-        headers = {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        }
+#     def evaluate_question(self, research_question, dispatcher):
+#         input_message = research_question
+#         url = "http://ml.hsueh.tw/callapi/"
+#         data = {
+#             "engine": "taiwan-llama",
+#             "temperature": 0.7,
+#             "max_tokens": 800,
+#             "top_p": 0.95,
+#             "top_k": 5,
+#             "roles": [{"role": "system", 
+#                        "content": 
+#                         "作為科學探究與實作的高中自然科學導師，您的任務:幫助學生提出的研究問題檢查以下條件，依據列點回答'是'或'否'，給予結論。"
+#                         "1. 題目會不會對高中生太難"
+#                         "2. 可否取得會自製相關的研究器材"
+#                         "3. 研究材料是否容易取得"
+#                         "4. 實驗是否安全"
+#                         "5. 是否可以找到測量或紀錄的方法"},
+#                       {"role": "user", "content": input_message}],
+#             "frequency_penalty": 0,
+#             "repetition_penalty": 1.03,
+#             "presence_penalty": 0,
+#             "stop": "",
+#             "past_messages": 10,
+#             "purpose": "dev"
+#         }
+#         headers = {
+#             'Accept': 'application/json',
+#             'Content-Type': 'application/json'
+#         }
 
-        try:
-            response = requests.post(url, json=data, headers=headers)
-            response.raise_for_status()
-            message_content = response.json().get('choices', [{}])[0].get('message', {}).get('content', '')
-            dispatcher.utter_message(text=message_content)
-        except requests.RequestException as error:
-            print(f'API請求錯誤: {error}')
-            dispatcher.utter_message(text="API請求過程中發生錯誤")
+#         try:
+#             response = requests.post(url, json=data, headers=headers)
+#             response.raise_for_status()
+#             message_content = response.json().get('choices', [{}])[0].get('message', {}).get('content', '')
+#             dispatcher.utter_message(text=message_content)
+#         except requests.RequestException as error:
+#             print(f'API請求錯誤: {error}')
+#             dispatcher.utter_message(text="API請求過程中發生錯誤")
    
 class ActionFallback(Action):
     def name(self):
@@ -187,7 +399,7 @@ class ActionFallback(Action):
         input_message = tracker.latest_message.get('text')
         url = "http://ml.hsueh.tw/callapi/"
         data = {
-            "engine": "gpt-35-turbo",
+            "engine": "taiwan-llama",
             "temperature": 0.7,
             "max_tokens": 800,
             "top_p": 0.95,
@@ -216,78 +428,62 @@ class ActionFallback(Action):
 
         return []
     
+
 class ActionStartDecisionTree(Action):
     def name(self):
         return "action_start_decision_tree"
 
     def run(self, dispatcher, tracker, domain):
+        print("決策樹/科目")
         dispatcher.utter_message(
-            text="讓我們來確定一個研究主題，你對以下哪一個領域感興趣。\n"
-            "請輸入：物理、化學、地球科學或生物。"
+            text="首先，讓我們來確定一個研究主題，你對以下哪一個科目感興趣?\n"
+            "請輸入：物理、化學、地科或生物。"
             )
         return []
 
+# 科目
 class ActionSaveScienceDiscipline(Action):
     def name(self):
         return "action_save_science_discipline"
 
-    def run(self, dispatcher, tracker, domain):
-        text = tracker.latest_message.get('text')
+    def run(self, dispatcher: CollectingDispatcher, tracker, domain):
+        print("決策樹/科目/主題")
+        text = tracker.latest_message.get('text').strip()
 
-        if "化學" in text:
-            dispatcher.utter_message(
-                text="你對化學感興趣。請問你想探索化學的哪個主題。\n"
-                "例如：化學-能量的形式與轉換\n"
-                "物質的分離與鑑定\n"
-                "物質的結構與功能\n"
-                "組成地球的物質\n"
-                "水溶液中的變化\n"
-                "氧化與還原反應\n"
-                "酸鹼反應\n"
-                "科學在生活中的應用\n"
-                "環境汙染與防治\n"
-                "能源的開發與利用\n"
-            ) 
-            return [SlotSet("science_discipline", "chemistry")]
+        # 學科和對應的主題列表
+        disciplines_topics = {
+            '化學': [
+                "化學-能量的形式與轉換", "物質的分離與鑑定", "物質的結構與功能",
+                "組成地球的物質", "水溶液中的變化", "氧化與還原反應", "酸鹼反應",
+                "科學在生活中的應用", "天然災害與防治-化學", "環境汙染與防治",
+                "能源的開發與利用"
+            ],
+            '物理': [
+                "物理-能量的形式與轉換", "溫度與熱量", "力與運動", "宇宙與天體",
+                "萬有引力", "波動、光及聲音", "電磁現象", "量子現象",
+                "物理在生活中的應用-科學、技術及社會的互動關係"
+            ],
+            '生物': [
+                "生殖與遺傳", "演化", "生物多樣性", "基因改造"
+            ],
+            '地科': [
+                "天氣與氣候變化", "晝夜與季節", "天然災害與防治-地科",
+                "永續發展與資源的利用", "氣候變遷之影響與調適"
+            ]
+        }
 
-        elif "物理" in text:
-            dispatcher.utter_message(
-                text="你對物理感興趣。請問你想探索物理的哪個主題。\n"
-                "例如：物理-能量的形式與轉換\n"
-                "溫度與熱量\n"
-                "力與運動\n"
-                "宇宙與天體\n"
-                "萬有引力\n"
-                "波動、光及聲音\n"
-                "電磁現象\n"
-                "量子現象\n"
-                "物理在生活中的應用-科學、技術及社會的互動關係\n"
+        # 檢查用戶輸入是否匹配已知學科
+        for discipline, topics in disciplines_topics.items():
+            if re.fullmatch(discipline, text):
+                topics_formatted = '\n'.join([f"{i + 1}. {topic}" for i, topic in enumerate(topics)])
+                dispatcher.utter_message(
+                    text=f"你對{discipline}這個科目感興趣。請問你想探究{discipline}的哪個主題，選擇下列主題進一步探討：\n{topics_formatted}"
                 )
-            return [SlotSet("science_discipline", "physics")]
-        
-        elif "生物" in text:
-            dispatcher.utter_message(
-                text="你對生物感興趣。請問你想探索哪個方向的生物\n"
-                "例如：生殖與遺傳\n"
-                "演化\n"
-                "生物多樣性\n"
-                "基因改造\n")
-            return [SlotSet("science_discipline", "biology")]
-        
-        elif "地科" in text or "地球科學" in text:
-            dispatcher.utter_message(
-                text="你對地球科學感興趣。請問你想探索哪個方向的地球科學。\n"
-                "例如：天氣與氣候變化\n"
-                "晝夜與季節\n"
-                "天然災害與防治。\n"
-                "永續發展與資源的利用\n"
-                "氣候變遷之影響與調適"
-                )
-            return [SlotSet("science_discipline", "earth_science")]
+                return [SlotSet("science_discipline", discipline)]
 
-        else:
-            dispatcher.utter_message(text="不好意思，我沒有理解你的意思。你能說得更具體一點嗎？")
-            return []
+        # 如果沒有匹配到任何學科
+        dispatcher.utter_message(text="不好意思，我沒有理解你的意思。你能說得更具體一點嗎？")
+        return []
 
 # 化學
 class ActionExploreChemistryTopic(Action):
@@ -297,104 +493,131 @@ class ActionExploreChemistryTopic(Action):
     def run(self, dispatcher, tracker, domain):
         text = tracker.latest_message.get('text')
 
-        if "化學-能量的形式與轉換" in text:
+        if text == "化學-能量的形式與轉換" :
             dispatcher.utter_message(
-                text="你選擇了能量的形式與轉換。請問你對以下哪個更感興趣。\n"
-                     "I. 化學反應中的能量變化\n"
-                     "II. 化學反應熱"
+                text="你選擇了能量的形式與轉換。請問你對以下哪個主題內容更感興趣。\n"
+                     "1. 化學反應中的能量變化\n"
+                     "2. 化學反應熱"
             )
-            return [SlotSet("subtopic", "energy_transformation")]
+            return [SlotSet("subtopic", "chemistry_energy_transformation")]
 
-        if "物質的分離與鑑定" in text:
+        if text == "物質的分離與鑑定" :
             dispatcher.utter_message(
-                text="你選擇了物質的分離與鑑定，請問你對以下哪個更感興趣。\n"
-                "物質的分離\n"
-                "物質的鑑定\n"
+                text="你選擇了物質的分離與鑑定，請問你對以下哪個主題內容更感興趣。\n"
+                     "1. 物質的分離\n"
+                     "2. 物質的鑑定\n"
                 )
             return [SlotSet("subtopic", "substance_separation_identification")]
 
-        if "物質的結構與功能" in text:
+        if text == "物質的結構與功能" :
             dispatcher.utter_message(
-                text="你選擇了物質的結構與功能。請問你對以下哪個更感興趣。\n"
-                     "I. 化學式\n"
-                     "II. 物質化學式的鑑定\n"
-                     "III. 物質的結構\n"
-                     "IV. 分子模型介紹"
+                text="你選擇了物質的結構與功能。請問你對以下哪個主題內容更感興趣。\n"
+                     "1. 化學式\n"
+                     "2. 物質化學式的鑑定\n"
+                     "3. 物質的結構\n"
+                     "4. 分子模型介紹"
             )
             return [SlotSet("subtopic", "substance_structure_function")]
 
-        if "組成地球的物質" in text:
+        if text == "組成地球的物質" :
             dispatcher.utter_message(
-                text="你選擇了組成地球的物質。請問你對以下哪個更感興趣。\n"
-                     "I. 自然界中的物質循環\n"
-                     "II. 水的性質及影響\n"
-                     "III. 水質的淨化、純化與軟化\n"
-                     "IV. 海水中蘊藏的資源\n"
-                     "V. 空氣中所含的物質"
+                text="你選擇了組成地球的物質。請問你對以下哪個主題內容更感興趣。\n"
+                     "1. 自然界中的物質循環\n"
+                     "2. 水的性質及影響\n"
+                     "3. 水質的淨化、純化與軟化\n"
+                     "4. 海水中蘊藏的資源\n"
+                     "5. 空氣中所含的物質"
             )
             return [SlotSet("subtopic", "earth_materials")]
 
-        if "水溶液中的變化" in text:
+        if text == "水溶液中的變化" :
             dispatcher.utter_message(
-                text="你選擇了水溶液中的變化。請問你對以下哪個更感興趣。\n"
-                     "I. 水溶液與濃度"
+                text="你選擇了水溶液中的變化。請問你對以下哪個主題內容更感興趣。\n"
+                     "1. 水溶液與濃度"
             )
             return [SlotSet("subtopic", "aqueous_solutions")]
 
-        if "氧化與還原" in text:
+        if text == "氧化與還原" :
             dispatcher.utter_message(
-                text="你選擇了氧化與還原。請問你對以下哪個更感興趣。\n"
-                "氧化反應\n"
-                "還原反應"
+                text="你選擇了氧化與還原。請問你對以下哪個主題內容更感興趣。\n"
+                "1. 氧化與還原反應的應用\n"
+                "2. 氧化與還原反應的機制"
             )
             return [SlotSet("subtopic", "oxidation_reduction_reactions")]
 
-        if "酸鹼反應" in text:
+        if text == "酸鹼反應" :
             dispatcher.utter_message(
-                text="你選擇了酸鹼反應，請問你對以下哪個更感興趣\n。"
-                "酸鹼中和"
+                text="你選擇了酸鹼反應，請問你對以下哪個主題內容更感興趣\n。"
+                "1. 酸鹼反應的速率\n"
+                "2. 酸鹼反應的平衡"
             )
             return [SlotSet("subtopic", "acid_base_reactions")]
 
-        if "科學在生活中的應用" in text:
+        if text == "科學在生活中的應用" :
             dispatcher.utter_message(
-                text="你選擇了科學在生活中的應用。請問你對以下哪個更感興趣。\n"
-                     "I. 食品與化學\n"
-                     "II. 衣料與高分子化學\n"
-                     "III. 肥皂與清潔劑\n"
-                     "IV. 高分子材料與化學：塑膠\n"
-                     "V. 實驗：鼻涕蟲\n"
-                     "VI. 陶瓷磚瓦和玻璃\n"
-                     "VII. 奈米材料、先進材料\n"
-                     "VIII. 藥物與化學"
+                text="你選擇了科學在生活中的應用。請問你對以下哪個主題內容更感興趣。\n"
+                     "1. 食品與化學\n"
+                     "2. 衣料與高分子化學\n"
+                     "3. 肥皂與清潔劑\n"
+                     "4. 高分子材料與化學：塑膠\n"
+                     "5. 陶瓷磚瓦和玻璃\n"
+                     "6. 奈米材料、先進材料\n"
+                     "7. 藥物與化學"
             )
             return [SlotSet("subtopic", "science_in_life_applications")]
-
-        if "環境汙染與防治" in text:
+        
+        if text == "天然災害與防治-化學" :
             dispatcher.utter_message(
-                text="你選擇了環境汙染與防治。請問你對以下哪個更感興趣。\n"
-                     "I. 水汙染與防治\n"
-                     "II. 大氣汙染與防治"
+                text="你選擇了天然災害與防治。請問你對以下哪個主題內容更感興趣。\n"
+                     "1. 天然災害的影響\n"
+                     "2. 化學防治\n"
+                     
+            )
+            return [SlotSet("subtopic", "natural_disasters_and_prevention_chemistry")]
+
+        if text == "環境汙染與防治" :
+            dispatcher.utter_message(
+                text="你選擇了環境汙染與防治。請問你對以下哪個主題內容更感興趣。\n"
+                     "1. 水汙染與防治\n"
+                     "2. 大氣汙染與防治"
             )
             return [SlotSet("subtopic", "environmental_pollution_control")]
 
-        if "能源的開發與利用" in text:
+        if text == "能源的開發與利用" :
             dispatcher.utter_message(
-                text="你選擇了能源的開發與利用。請問你對以下哪個更感興趣。\n"
-                     "I. 化石燃料：煤、石油、天然氣\n"
-                     "II. 石油分餾及其主要產物\n"
-                     "III. 烴的燃燒與汽油辛烷值\n"
-                     "IV. 化學電池原理\n"
-                     "V. 常見的電池\n"
-                     "VI. 化學電池\n"
-                     "VII. 替代能源\n"
-                     "VIII. 簡介臺灣的再生能源及附近海域能源的蘊藏與開發"
+                text="你選擇了能源的開發與利用。請問你對以下哪個主題內容更感興趣。\n"
+                     "1. 化石燃料：煤、石油、天然氣\n"
+                     "2. 石油分餾及其主要產物\n"
+                     "3. 烴的燃燒與汽油辛烷值\n"
+                     "4. 化學電池原理\n"
+                     "5. 常見的電池\n"
+                     "6. 化學電池\n"
+                     "7. 替代能源\n"
+                     "8. 簡介臺灣的再生能源及附近海域能源的蘊藏與開發"
             )
             return [SlotSet("subtopic", "energy_development_utilization")]
 
         return []
 
 # 物理
+# class ActionExplorePhysicsTopic(Action):
+#     def name(self):
+#         return "action_explore_physics_topic"
+
+#     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict]:
+#         text = tracker.latest_message.get('text').strip()
+#         topics = get_topics()["physics"]['topics']
+
+#         if text in topics:
+#             subtopics = topics[text]['subtopics']
+#             message = f"你選擇了{topics[text]['description']}，請問你對以下哪個主題內容更感興趣：\n" + \
+#                       "\n".join([f"{i+1}. {sub}" for i, sub in enumerate(subtopics)])
+#             dispatcher.utter_message(text=message)
+#             return [SlotSet("topic", text)]
+
+#         dispatcher.utter_message(text="未找到相關主題，請重新選擇或詳細說明。")
+#         return []
+    
 class ActionExplorePhysicsTopic(Action):
     def name(self):
         return "action_explore_physics_topic"
@@ -402,83 +625,83 @@ class ActionExplorePhysicsTopic(Action):
     def run(self, dispatcher, tracker, domain):
         text = tracker.latest_message.get('text')
 
-        if "物理-能量的形式與轉換" in text:
+        if text == "物理-能量的形式與轉換" :
             dispatcher.utter_message(
-                text="你選擇了能量的形式與轉換。請問你對以下哪個更感興趣。\n"
-                     "I. 能量\n"
-                     "II. 力學能"
+                text="你選擇了能量的形式與轉換。請問你對以下哪個主題內容更感興趣。\n"
+                     "1. 能量\n"
+                     "2. 力學能"
             )
-            return [SlotSet("subtopic", "energy_transformation")]
+            return [SlotSet("subtopic", "physics_energy_transformation")]
 
-        if "溫度與熱量" in text:
+        if text == "溫度與熱量" :
             dispatcher.utter_message(
-                text="你選擇了溫度與熱量。請問你對以下哪個更感興趣。\n"
-                     "I. 溫度\n"
-                     "II. 熱"
+                text="你選擇了溫度與熱量。請問你對以下哪個主題內容更感興趣。\n"
+                     "1. 溫度\n"
+                     "2. 熱"
             )
             return [SlotSet("subtopic", "temperature_and_heat")]
 
-        if "力與運動" in text:
+        if text == "力與運動" :
             dispatcher.utter_message(
-                text="你選擇了力與運動。請問你對以下哪個更感興趣。\n"
-                     "I. 運動分析\n"
-                     "II. 力的作用\n"
-                     "III. 摩擦力"
+                text="你選擇了力與運動。請問你對以下哪個主題內容更感興趣。\n"
+                     "1. 運動分析\n"
+                     "2. 力的作用\n"
+                     "3. 摩擦力"
             )
             return [SlotSet("subtopic", "force_and_motion")]
 
-        if "宇宙與天體" in text:
+        if text == "宇宙與天體" :
             dispatcher.utter_message(
-                text="你選擇了宇宙與天體。請問你對以下哪個更感興趣。\n"
-                     "I. 古典物理學發展簡史-宇宙與天體\n"
-                     "II. 現代物理的發展-宇宙與天體"
+                text="你選擇了宇宙與天體。請問你對以下哪個主題內容更感興趣。\n"
+                     "1. 古典物理學發展簡史-宇宙與天體\n"
+                     "2. 現代物理的發展-宇宙與天體"
             )
             return [SlotSet("subtopic", "universe_and_celestial")]
 
-        if "萬有引力" in text:
+        if text == "萬有引力" :
             dispatcher.utter_message(
-                text="你選擇了萬有引力。請問你對以下哪個更感興趣。\n"
-                "I. 萬有引力的應用"
+                text="你選擇了萬有引力。請問你對以下哪個主題內容更感興趣。\n"
+                     "1. 萬有引力的應用"
                 )
             return [SlotSet("subtopic", "gravitation")]
 
-        if "波動、光及聲音" in text:
+        if text == "波動、光及聲音" :
             dispatcher.utter_message(
-                text="你選擇了波動、光及聲音。請問你對以下哪個更感興趣。\n"
-                     "I. 波的現象\n"
-                     "II. 聲音的發生與傳播\n"
-                     "III. 聲波的應用\n"
-                     "IV. 光的反射及面鏡成像\n"
-                     "V. 光的折射及透鏡成像\n"
-                     "VI. 光與生活"
+                text="你選擇了波動、光及聲音。請問你對以下哪個主題內容更感興趣。\n"
+                     "1. 波的現象\n"
+                     "2. 聲音的發生與傳播\n"
+                     "3. 聲波的應用\n"
+                     "4. 光的反射及面鏡成像\n"
+                     "5. 光的折射及透鏡成像\n"
+                     "6. 光與生活"
             )
             return [SlotSet("subtopic", "waves_light_sound")]
 
-        if "電磁現象" in text:
+        if text == "電磁現象" :
             dispatcher.utter_message(
-                text="你選擇了電磁現象。請問你對以下哪個更感興趣。\n"
-                     "I. 靜電與庫侖定律\n"
-                     "II. 電流\n"
-                     "III. 電流磁效應\n"
-                     "IV. 電磁感應現象及應用\n"
-                     "V. 電磁波"
+                text="你選擇了電磁現象。請問你對以下哪個主題內容更感興趣。\n"
+                     "1. 靜電與庫侖定律\n"
+                     "2. 電流\n"
+                     "3. 電流磁效應\n"
+                     "4. 電磁感應現象及應用\n"
+                     "5. 電磁波"
             )
             return [SlotSet("subtopic", "electromagnetism")]
 
-        if "量子現象" in text:
+        if text == "量子現象" :
             dispatcher.utter_message(
-                text="你選擇了量子現象。請問你對以下哪個更感興趣。\n"
-                     "I. 現代物理的發展-量子現象\n"
-                     "II. 物理在生活中的應用-量子現象"
+                text="你選擇了量子現象。請問你對以下哪個主題內容更感興趣。\n"
+                     "1. 現代物理的發展-量子現象\n"
+                     "2. 物理在生活中的應用-量子現象"
             )
             return [SlotSet("subtopic", "quantum_phenomena")]
 
-        if "物理在生活中的應用" in text:
+        if text == "物理在生活中的應用" :
             dispatcher.utter_message(
-                text="你選擇了物理在生活中的應用。請問你對以下哪個更感興趣。\n"
-                "物理在生活中的應用-科學\n"
-                "物理在生活中的應用-技術\n"
-                "物理在生活中的應用-社會"
+                text="你選擇了物理在生活中的應用。請問你對以下哪個主題內容更感興趣。\n"
+                "1. 物理在生活中的應用-科學\n"
+                "2. 物理在生活中的應用-技術\n"
+                "3. 物理在生活中的應用-社會"
                 )
             return [SlotSet("subtopic", "physics_in_life_applications")]
 
@@ -492,101 +715,105 @@ class ActionExploreBiologyTopic(Action):
     def run(self, dispatcher, tracker, domain):
         text = tracker.latest_message.get('text')
 
-        if "生殖與遺傳" in text:
+        if text == "生殖與遺傳" :
             dispatcher.utter_message(
-                text="你選擇了生殖與遺傳。請問你對以下哪個更感興趣。\n"
-                     "I. 遺傳法則\n"
-                     "II. 遺傳的分子基礎\n"
-                     "III. 突變\n"
-                     "IV. 探究活動：DNA 的粗萃取"
+                text="你選擇了生殖與遺傳。請問你對以下哪個主題內容更感興趣。\n"
+                     "1. 遺傳法則\n"
+                     "2. 遺傳的分子基礎\n"
+                     "3. 突變\n"
+                     "4. 探究活動：DNA 的粗萃取"
             )
             return [SlotSet("subtopic", "reproduction_genetics")]
 
-        if "演化" in text:
+        if text == "演化" :
             dispatcher.utter_message(
-                text="你選擇了演化，請問你對以下哪個更感興趣。\n"
-                     "I. 生命的起源\n"
-                     "II. 生物的演化"
+                text="你選擇了演化，請問你對以下哪個主題內容更感興趣。\n"
+                     "1. 生命的起源\n"
+                     "2. 生物的演化"
             )
             return [SlotSet("subtopic", "evolution")]
 
-        if "生物多樣性" in text:
+        if text == "生物多樣性" :
             dispatcher.utter_message(
-                text="你選擇了生物多樣性，請問你對以下哪個更感興趣。\n"
-                     "I. 校園生物多樣性的觀察"
+                text="你選擇了生物多樣性，請問你對以下哪個主題內容更感興趣。\n"
+                     "1. 校園生物多樣性的觀察"
             )
             return [SlotSet("subtopic", "biodiversity")]
 
-        if "基因改造" in text:
+        if text == "基因改造" :
             dispatcher.utter_message(
-                text="你選擇了基因改造，請問你對以下哪個更感興趣。\n"
-                     "I. 基因改造生物\n"
-                     "II. 基因改造食品的安全性"
+                text="你選擇了基因改造，請問你對以下哪個主題內容更感興趣。\n"
+                     "1. 基因改造生物\n"
+                     "2. 基因改造食品的安全性"
             )
             return [SlotSet("subtopic", "genetic_modification")]
         return []
 # 地科
 class ActionExploreEarthScienceTopic(Action):
+    
     def name(self):
         return "action_explore_earth_science_topic"
 
     def run(self, dispatcher, tracker, domain):
         text = tracker.latest_message.get('text')
 
-        if "天氣與氣候變化" in text:
+        if text == "天氣與氣候變化" :
             dispatcher.utter_message(
-                text="你選擇了天氣與氣候變化。請問你對以下哪個更感興趣。\n"
-                     "I. 大氣的變化\n"
-                     "II. 天氣的變化"
+                text="你選擇了天氣與氣候變化。請問你對以下哪個主題內容更感興趣。\n"
+                     "1. 大氣的變化\n"
+                     "2. 天氣的變化\n"
+                     "3. 氣候變化農業的影響"
             )
             return [SlotSet("subtopic", "weather_climate_change")]
 
-        if "晝夜與季節" in text:
+        if text == "晝夜與季節" :
             dispatcher.utter_message(
-                text="你選擇了晝夜與季節，請問你對以下哪個更感興趣。\n"
-                     "I. 晝夜與季節的變化"
+                text="你選擇了晝夜與季節，請問你對以下哪個主題內容更感興趣。\n"
+                     "1. 晝夜的影響\n"
+                     "2. 季節的變化"
             )
             return [SlotSet("subtopic", "day_night_seasons")]
 
-        if "天然災害與防治" in text:
+        if text == "天然災害與防治-地科" :
             dispatcher.utter_message(
-                text="你選擇了天然災害與防治，請問你對以下哪個更感興趣。\n"
-                     "I. 颱風\n"
-                     "II. 洪水\n"
-                     "III. 地震\n"
-                     "IV. 山崩與土石流"
+                text="你選擇了天然災害與防治，請問你對以下哪個主題內容更感興趣。\n"
+                     "1. 颱風\n"
+                     "2. 洪水\n"
+                     "3. 地震\n"
+                     "4. 山崩與土石流"
             )
-            return [SlotSet("subtopic", "natural_disasters_prevention")]
+            return [SlotSet("subtopic", "natural_disasters_prevention_earth_science")]
 
-        if "永續發展與資源的利用" in text:
+        if text == "永續發展與資源的利用" :
             dispatcher.utter_message(
-                text="你選擇了永續發展與資源的利用，請問你對以下哪個更感興趣。\n"
-                     "I. 人與環境互相依存\n"
-                     "II. 永續發展的理念"
+                text="你選擇了永續發展與資源的利用，請問你對以下哪個主題內容更感興趣。\n"
+                     "1. 人與環境互相依存\n"
+                     "2. 永續發展的理念"
             )
             return [SlotSet("subtopic", "sustainable_development_resource_use")]
 
-        if "氣候變遷之影響與調適" in text:
+        if text == "氣候變遷之影響與調適" :
             dispatcher.utter_message(
-                text="你選擇了氣候變遷之影響與調適，請問你對以下哪個更感興趣。\n"
-                     "I. 地球歷史的氣候變遷\n"
-                     "II. 短期氣候變化\n"
-                     "III. 全球暖化"
+                text="你選擇了氣候變遷之影響與調適，請問你對以下哪個主題內容更感興趣。\n"
+                     "1. 地球歷史的氣候變遷\n"
+                     "2. 短期氣候變化\n"
+                     "3. 全球暖化"
             )
             return [SlotSet("subtopic", "climate_change_impacts_adaptation")]
-        return []
+        return []   
 
+# 科技大觀園
 class ActionSaveSubtopic(Action):
     def name(self):
         return "action_save_subtopic"
 
     def run(self, dispatcher, tracker, domain):
-        subtopic = tracker.latest_message.get('text')
-
+        text = tracker.latest_message.get('text')
+        print("科技大觀園")
         # API URL
         api_url = "http://ml.hsueh.tw:1287/query/"
         data = {
-            "question": subtopic,
+            "question": text,
             "search_result": ""
         }
         headers = {
@@ -602,21 +829,71 @@ class ActionSaveSubtopic(Action):
                 dispatcher.utter_message(text=result["response"])
                 dispatcher.utter_message(text="以下來自科技大觀園的相關資訊...")
 
+                search_contents = []
                 for content_str in result.get("search_contents", []):
                     if 'Link: ' in content_str and 'Description: ' in content_str:
                         parts = content_str.split(' Link: ')
                         title = parts[0].replace('Title: ', '')
                         link, description = parts[1].split(' Description: ')
-                        message = f"{title}\n{link}\n{description}"
-                        dispatcher.utter_message(text=message)
+                        content_dict = {
+                            "title": title,
+                            "link": link,
+                            "description": description
+                        }
+                        search_contents.append(content_dict)
 
-            else:
-                dispatcher.utter_message(text="API請求失敗或數據解析錯誤")
+                for content in search_contents:
+                    message = f"{content['title']}\n{content['description']}\n{content['link']}"
+                    dispatcher.utter_message(text=message)
         else:
             dispatcher.utter_message(text="API請求失敗或發生錯誤")
             print('API請求失敗或發生錯誤')
 
         return []
+    
+# class ActionRandomTopicQuestion(Action):
+#     def name(self):
+#         return "action_random_topic_question"
+
+#     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict]:
+#         # 從跟踪器獲取當前的科目和主題
+#         discipline = tracker.get_slot('science_discipline')
+#         topic = tracker.get_slot('topic')
+#         subtopic_query = tracker.get_slot('subtopic')  # 可能是直接由用戶提出的子主題
+
+#         # 從get_topics函數獲得所有主題和子主題
+#         topics_data = get_topics()
+
+#         # 如果科目和主題都已設定，按正常流程處理
+#         if discipline in topics_data and topic in topics_data[discipline]['topics']:
+#             subtopics = topics_data[discipline]['topics'][topic].get('subtopics', {})
+#             if subtopic_query in subtopics:
+#                 questions = subtopics[subtopic_query]
+#                 random_question = random.choice(questions)
+#                 dispatcher.utter_message(text=random_question)
+#                 return []
+
+#         # 如果用戶直接輸入了子主題名稱，嘗試在所有科目和主題中找到匹配的子主題
+#         for disc, topics_info in topics_data.items():
+#             for top, details in topics_info['topics'].items():
+#                 if 'subtopics' in details and subtopic_query in details['subtopics']:
+#                     questions = details['subtopics'][subtopic_query]
+#                     random_question = random.choice(questions)
+#                     dispatcher.utter_message(text=random_question)
+#                     return []
+
+#         # 如果找不到有效的科目或主題，發送錯誤消息
+#         dispatcher.utter_message(text="未找到相應的科目或主題，請重新選擇或詳細說明。")
+#         return []
+
+   
+class ActionResetSubtopic(Action):
+    def name(self):
+        return "action_reset_subtopic"
+
+    async def run(self, dispatcher, tracker, domain):
+        # 清除subtopic插槽的值
+        return [SlotSet("subtopic", None)]
     
 # class ActionIrrelevantTopic(Action):
 #     def name(self):

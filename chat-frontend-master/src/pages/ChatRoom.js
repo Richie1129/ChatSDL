@@ -9,6 +9,7 @@ import Swal from 'sweetalert2'
 import './ChatRoom.css';
 import { fetchTechCsv } from '../Api/techcsv';
 import DialogBox from '../components/DialogBox'
+// import { sendMessage, sendButtonPayload } from './app.js';  // 確保路徑正確
 
 const ChatRoom = () => {
     const [messages, setMessages] = useState([]);
@@ -86,36 +87,6 @@ const ChatRoom = () => {
                 } else {
                     console.error('API請求失敗或發生錯誤');
                 } 
-            //     // 儲存研究問題並詢問是否有關鍵字
-            //     setResearchQuestion(inputMessage);
-            //     setMessages(currentMessages => [...currentMessages, 
-            //         { text: `你的研究問題: ${inputMessage}`, type: 'response' },
-            //         { text: "那你已經有關鍵字來做文獻查詢了嗎？(有/無)", type: 'response' }
-            //     ]);
-            //     setAskingForKeywords(true); // 開始詢問是否有關鍵字
-            // } else if (askingForKeywords) {
-            //     if (inputMessage.trim().toLowerCase() === '有') {
-            //         setMessages(currentMessages => [...currentMessages, { text: "請輸入你的關鍵字，讓我們來看看你的關鍵字是否合適。", type: 'response' }]);
-            //         setAskingForKeywords(false); // 重置，等待關鍵字輸入
-                    
-                    
-            //     } else if (inputMessage.trim().toLowerCase() === '無'||'沒有'||'還沒有'||'沒') {
-            //         // 如果用戶沒有準備好關鍵字，使用研究問題調用API
-            //         setMessages(currentMessages => [...currentMessages, { text: "正在使用你的研究問題尋找關鍵字...", type: 'response' }]);
-                //     const keywordResults = await fetchKeyword(inputMessage); // 使用研究問題調用API
-                //     if (Array.isArray(keywordResults) && keywordResults.length > 0) {
-                //         keywordResults.forEach(result => {
-                //             setMessages(currentMessages => [...currentMessages, { text: result.trim(), type: 'response' }]);
-                //         });
-                //         setMessages(currentMessages => [...currentMessages, { text: "希望這些關鍵字能幫助你查詢相關文獻！", type: 'response' }]);
-                // //     } else {
-                // //         // 處理錯誤或無回應的情況
-                // //         setMessages(currentMessages => [...currentMessages, { text: "無法獲取關鍵字，請稍後再試。", type: 'error' }]);
-                // //     }
-                // //     setAskingForKeywords(false); // 重置狀態，以便進行下一步操作
-                // // }
-                // // setSelectedOption(''); // 重置用戶選擇，以便重新開始流程
-                // }
             } else if (selectedOption === '探究主題') {
                 const rasaEndpoint = 'http://localhost:5005/webhooks/rest/webhook';
                 try {
@@ -127,7 +98,7 @@ const ChatRoom = () => {
                         body: JSON.stringify({ message: inputMessage, sender: 'user' })
                     });
                     const rasaMessages = await response.json();
-                     // // 處理API回應
+                    // // 處理API回應
                         // if (response && response.trim() !== '') {
                         //     const responseMessageData = {
                         //         role: 'assistant',
@@ -199,7 +170,7 @@ const ChatRoom = () => {
                     text: "在這邊你可以探索你有興趣或是想研究的探究主題！",
                     icon: "info"
                   });
-                welcomeMessage = "嗨！我是一位專門輔導高中生科學探究與實作的自然科學導師。我會用適合高中生的語言，保持專業的同時，幫助你探索自然科學的奧秘，並引導你選擇一個有興趣的科展主題，以及更深入了解你的研究問題。今天我們來一起找出一個適合你的科學探究主題。準備好了嗎？還是你已經有的'主題'或是'想法'了嗎？";
+                welcomeMessage = "嗨！我是一位專門輔導高中生科學探究與實作的自然科學導師。我會用適合高中生的語言，保持專業的同時，幫助你探索自然科學的奧秘，並引導你選擇一個有興趣的科展主題，以及更深入了解你的研究問題。今天我們來一起找出一個適合你的科學探究主題。還是你已經有的'主題'或是'想法'了嗎？";
                 break;
             case "option2":
                 optionText = "關鍵字檢索";
