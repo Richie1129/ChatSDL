@@ -7,10 +7,11 @@ stories:
   - intent: greet
   - action: utter_greet
 
-- story: topic discussion for more info
-  steps:
-  - intent: topic_check
-  - action: utter_topic
+# - story: topic discussion for more info
+#   steps:
+#   - intent: topic_check
+#   - action: utter_topic
+
   # - action: action_rag_abstract_explain
   # - intent: idea_check
   # - action: utter_curiosity
@@ -18,10 +19,10 @@ stories:
   # - intent: user_responds_to_topic
   # - action: action_topic_response
 
-- story: topic discussion no idea
-  steps:
-  - intent: topic_check
-  - action: utter_topic
+# - story: topic discussion no idea
+#   steps:
+#   - intent: topic_check
+#   - action: utter_topic
   # - action: action_rag_abstract_explain
   # - intent: no_idea_check
   # - action: action_save_subtopic
@@ -100,12 +101,22 @@ stories:
       entities:
         - subtopic: "{{subtopic}}"
     - action: utter_topic
+    # - intent: user_responds_to_topic
+    # - action: action_rag_5W1H
+
+- story: more info
+  steps:
     - intent: user_responds_to_topic
     - action: action_rag_5W1H
+    # - intent: unknown_response
+    # - action: action_faq_answering
+    # - slot_was_set:
+    #     - student_response_quality: "false"
+    # - action: action_rag_abstract_explain
 
 - story: 科學名詞定義/為什麼
   steps:
-    - intent: definition/why
+    - intent: definition
     - action: action_rag_abstract_explain
 
 

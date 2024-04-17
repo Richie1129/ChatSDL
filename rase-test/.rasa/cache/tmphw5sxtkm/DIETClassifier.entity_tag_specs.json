@@ -1,0 +1,36 @@
+[
+  {
+    "tag_name": "entity",
+    "ids_to_tags": {
+      "1": "B-idea",
+      "2": "I-idea",
+      "3": "L-idea",
+      "4": "U-idea",
+      "5": "B-subtopic",
+      "6": "I-subtopic",
+      "7": "L-subtopic",
+      "8": "U-subtopic",
+      "9": "B-topic",
+      "10": "I-topic",
+      "11": "L-topic",
+      "12": "U-topic",
+      "0": "O"
+    },
+    "tags_to_ids": {
+      "B-idea": 1,
+      "I-idea": 2,
+      "L-idea": 3,
+      "U-idea": 4,
+      "B-subtopic": 5,
+      "I-subtopic": 6,
+      "L-subtopic": 7,
+      "U-subtopic": 8,
+      "B-topic": 9,
+      "I-topic": 10,
+      "L-topic": 11,
+      "U-topic": 12,
+      "O": 0
+    },
+    "num_tags": 13
+  }
+]

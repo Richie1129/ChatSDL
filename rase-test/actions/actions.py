@@ -21,24 +21,6 @@ import random
 import json
 import re
 from .faq import get_topics  # 確保這個導入正確
-
-class ActionExplorePhysicsTopic(Action):
-    def name(self):
-        return "action_explore_physics_topic"
-
-    def run(self, dispatcher: CollectingDispatcher, tracker, domain):
-        text = tracker.latest_message.get('text')
-        topics = get_topics()["physics"]['topics']  # 直接訪問物理主題
-
-        # 根據用戶選擇的主題提供子主題選項
-        if text in topics:
-            subtopics = topics[text]['subtopics']
-            message = f"{topics[text]['description']} 請選擇一個子主題：\n" + \
-                      "\n".join([f"{i+1}. {sub}" for i, sub in enumerate(subtopics)])
-            dispatcher.utter_message(text=message)
-            return [SlotSet("topic", text)]  # 存儲所選的主題供後續使用
-
-        return []
  
 # topic_check
 class ActionTopicResponse(Action):
@@ -428,7 +410,7 @@ class ActionFallback(Action):
 
         return []
     
-
+# 決策樹
 class ActionStartDecisionTree(Action):
     def name(self):
         return "action_start_decision_tree"
@@ -600,24 +582,6 @@ class ActionExploreChemistryTopic(Action):
         return []
 
 # 物理
-# class ActionExplorePhysicsTopic(Action):
-#     def name(self):
-#         return "action_explore_physics_topic"
-
-#     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict]:
-#         text = tracker.latest_message.get('text').strip()
-#         topics = get_topics()["physics"]['topics']
-
-#         if text in topics:
-#             subtopics = topics[text]['subtopics']
-#             message = f"你選擇了{topics[text]['description']}，請問你對以下哪個主題內容更感興趣：\n" + \
-#                       "\n".join([f"{i+1}. {sub}" for i, sub in enumerate(subtopics)])
-#             dispatcher.utter_message(text=message)
-#             return [SlotSet("topic", text)]
-
-#         dispatcher.utter_message(text="未找到相關主題，請重新選擇或詳細說明。")
-#         return []
-    
 class ActionExplorePhysicsTopic(Action):
     def name(self):
         return "action_explore_physics_topic"
@@ -850,43 +814,53 @@ class ActionSaveSubtopic(Action):
             print('API請求失敗或發生錯誤')
 
         return []
-    
-# class ActionRandomTopicQuestion(Action):
+
+# 不知道問題答案
+# class ActionFaqAnswering(Action):
 #     def name(self):
-#         return "action_random_topic_question"
+#         return "action_faq_answering"
+    
+#     def run(self, dispatcher, tracker, domain):
+#         print("faq_answering")
+#         # 反轉事件列表以便從最新的開始查找
+#         events = reversed(tracker.events)
+        
+#         messages_mix = []
+        
+#         # 瀏覽事件並收集訊息
+#         for event in events:
+#             if event.get("event") == "user" or event.get("event") == "bot":
+#                 messages_mix.append(event.get("text"))
+            
+#             # 停止條件：當收集到足夠的訊息
+#             if len(messages_mix) >= 6:  # 收集 3 個用戶訊息和 3 個機器人訊息
+#                 break
+        
+#         # 將消息列表轉換為單一字符串，每條消息之間用空格分隔
+#         question_text = " ".join(messages_mix) + " 判斷是否有回答問題嗎，回答'是'或'否'"
+        
+#         url = "http://ml.hsueh.tw:1288/query/"
+#         data = {
+#             "question": question_text
+#         }
+#         headers = {
+#             'accept': 'application/json',
+#             'Content-Type': 'application/json'
+#         }
 
-#     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict]:
-#         # 從跟踪器獲取當前的科目和主題
-#         discipline = tracker.get_slot('science_discipline')
-#         topic = tracker.get_slot('topic')
-#         subtopic_query = tracker.get_slot('subtopic')  # 可能是直接由用戶提出的子主題
+#         # 發送請求
+#         response = requests.post(url, json=data, headers=headers)
 
-#         # 從get_topics函數獲得所有主題和子主題
-#         topics_data = get_topics()
+#         if response.status_code == 200:
+#             response_data = response.json()
+#             response_result = response_data['response']
+#             # 根據回答是否為'是'來設定 slot
+#             slot_value = True if response_result == '是' else False
+#             return [SlotSet("student_response_quality", slot_value)]
+#         else:
+#             dispatcher.utter_message(text="無法從API獲取資訊。")
+#             return []
 
-#         # 如果科目和主題都已設定，按正常流程處理
-#         if discipline in topics_data and topic in topics_data[discipline]['topics']:
-#             subtopics = topics_data[discipline]['topics'][topic].get('subtopics', {})
-#             if subtopic_query in subtopics:
-#                 questions = subtopics[subtopic_query]
-#                 random_question = random.choice(questions)
-#                 dispatcher.utter_message(text=random_question)
-#                 return []
-
-#         # 如果用戶直接輸入了子主題名稱，嘗試在所有科目和主題中找到匹配的子主題
-#         for disc, topics_info in topics_data.items():
-#             for top, details in topics_info['topics'].items():
-#                 if 'subtopics' in details and subtopic_query in details['subtopics']:
-#                     questions = details['subtopics'][subtopic_query]
-#                     random_question = random.choice(questions)
-#                     dispatcher.utter_message(text=random_question)
-#                     return []
-
-#         # 如果找不到有效的科目或主題，發送錯誤消息
-#         dispatcher.utter_message(text="未找到相應的科目或主題，請重新選擇或詳細說明。")
-#         return []
-
-   
 class ActionResetSubtopic(Action):
     def name(self):
         return "action_reset_subtopic"

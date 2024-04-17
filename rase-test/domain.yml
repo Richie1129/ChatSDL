@@ -16,7 +16,8 @@ intents:
 - choose_subtopic
 - user_responds_to_topic
 - research_subtopic
-- definition/why
+- definition
+# - unknown_response
 # - explore_topic
 
 responses:
@@ -57,6 +58,7 @@ actions:
 - action_rag_abstract_explain
 - action_rag_5W1H
 - action_random_topic_question
+# - action_faq_answering
 
 # - action_irrelevant_topic
 
@@ -93,6 +95,13 @@ slots:
     influence_conversation: true
     mappings:
       - type: from_text
+
+  # student_response_quality:
+  #   type: bool
+  #   influence_conversation: true
+  #   mappings:
+  #     - type: custom
+
 
 session_config:
   session_expiration_time: 60
