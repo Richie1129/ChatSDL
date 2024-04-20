@@ -4,9 +4,9 @@ intents:
 - idea_check
 - no_idea_for_decision_tree
 - topic_check
-# - bad_science_fair_question
-# - good_science_fair_question
-# - submit_science_fair_question
+- bad_science_fair_question
+- good_science_fair_question
+- submit_science_fair_question
 - nlu_fallback
 - choose_discipline
 - choose_chemistry_topic
@@ -22,13 +22,16 @@ intents:
 
 responses:
   utter_greet:
-  - text: 你好，需要什麼幫助呢?
+  - text: 你好，需要什麼幫助呢？
   utter_topic:
-  - text: 為什麼你會想研究{subtopic}這個主題，還是你想要了解什麼呢?
-  # utter_bad_question_detected:
-  # - text: "這個科展題目似乎不符合標準。請考慮一個可以進行科學量測和分析的問題。"
-  # utter_good_question_detected:
-  # - text: "這個題目非常適合高中生進行科學研究，因為它可以進行科學量測和分析。這是一個值得探索的問題，請繼續努力。"
+  - text: 為什麼你會想研究這個主題，還是你想要了解什麼呢？
+    # buttons:
+    #   - title: "我想要了解更多"
+    #     payload: '/explore{{"subtopic": "{subtopic}"}}'
+  utter_bad_question_detected:
+  - text: "這個科展題目似乎不符合標準。請考慮一個可以進行科學量測和分析的問題。"
+  utter_good_question_detected:
+  - text: "這個題目非常適合高中生進行科學研究，因為它可以進行科學量測和分析。這是一個值得探索的問題，請繼續努力。"
   utter_no_idea_check:
   - text: "這很正常。讓我們一步一步來。想想看，最近在學校學過的或在日常生活中遇到的，有沒有什麼科學相關的主題或新聞、興趣愛好讓你感到好奇？"
   - text: "讓我們一步一步來。想想看，最近在學校學過的或在日常生活中遇到的，有沒有什麼科學相關的主題讓你感到好奇呢？也許是在課堂上聽到的、看到的某個實驗、理論或者是在生活中的某個現象。想想看，這些引起你興趣的科學議題，是什麼讓你感到好奇呢？可以是關於自然界、物理、化學、生物等等科學領域。請盡量描述你的想法，我們一起來探討並思考更多關於這些議題的可能性吧！"
@@ -43,9 +46,9 @@ actions:
 - utter_no_idea_check
 - action_topic_response
 - action_idea_response
-# - utter_bad_question_detected
-# - utter_good_question_detected
-# - action_evaluate_science_fair_question
+- utter_bad_question_detected
+- utter_good_question_detected
+- action_evaluate_science_fair_question
 - action_fallback
 - action_start_decision_tree
 - action_save_science_discipline
@@ -58,15 +61,16 @@ actions:
 - action_rag_abstract_explain
 - action_rag_5W1H
 - action_random_topic_question
-# - action_faq_answering
+- action_faq_answering
 
 # - action_irrelevant_topic
 
 entities:
-  # - research_question
+  - research_question
   - topic
   - idea
   - science_discipline
+  - reason
   - subtopic
 
 slots:
@@ -105,4 +109,4 @@ slots:
 
 session_config:
   session_expiration_time: 60
-  carry_over_slots_to_new_session: true
+  carry_over_slots_to_new_session: false

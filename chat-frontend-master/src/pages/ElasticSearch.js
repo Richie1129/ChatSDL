@@ -46,7 +46,7 @@ export const fetchElasticSearchResults = async (search_terms, topK = 5) => {
                 `摘要: ${doc_source["摘要"] || "未提供摘要"}<br>` +
                 `關鍵字: ${doc_source["關鍵字"] || "未提供關鍵詞"}<br>` +
                 `連結: <a href="${link}" target="_blank">${link}</a>`; // 使用 <a> 標籤創建超連結
-        });
+        }).concat(topHits.length === 0 ? ["沒有搜尋到跟你關鍵字有關的科展作品，請換一個關鍵字喔！"] : []);
     } catch (error) {
         console.error('Elasticsearch 查詢錯誤:', error);
         return [];

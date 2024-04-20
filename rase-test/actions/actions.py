@@ -20,6 +20,7 @@ import requests
 import random
 import json
 import re
+import time
 from .faq import get_topics  # 確保這個導入正確
  
 # topic_check
@@ -145,7 +146,7 @@ class ActionRagAbstract(Action):
             content = responses[0]  # 取第一個元素作為 content
 
             data2 = {
-            "engine": "taiwan-llama",
+            "engine": "gpt-35-turbo",
             "temperature": 0.7,
             "max_tokens": 500,
             "top_p": 0.95,
@@ -156,7 +157,7 @@ class ActionRagAbstract(Action):
                 "content": content
                 },{
                 "role": "user",
-                "content": "請根據內容，利用100字摘要"
+                "content": "請根據內容，利用150字摘要"
                            "回答只能使用繁體中文"
                 }
             ],
@@ -176,7 +177,9 @@ class ActionRagAbstract(Action):
                 chat_response = response2.json()
                 if 'choices' in chat_response and len(chat_response['choices']) > 0:
                     content2 = chat_response['choices'][0]['message']['content']
-                    dispatcher.utter_message(text=f"這邊是提出來的名詞解釋:\n{content2}")
+                    # dispatcher.utter_message(text=f"這邊是提出來的名詞解釋:\n{content2}")
+                    dispatcher.utter_message(text=content2)
+                    dispatcher.utter_message(text="那你還有想要了解什麼嗎？")
                     # dispatcher.utter_message(text=content2)
             else:
                 print(f"第二個請求失敗，狀態碼：{response2.status_code}")
@@ -219,7 +222,7 @@ class ActionRagQuestion(Action):
             content = responses[0]  # 取第一個元素作為 content
 
             data2 = {
-            "engine": "taiwan-llama",
+            "engine": "gpt-35-turbo",
             "temperature": 0.7,
             "max_tokens": 500,
             "top_p": 0.95,
@@ -251,6 +254,9 @@ class ActionRagQuestion(Action):
                 if 'choices' in chat_response and len(chat_response['choices']) > 0:
                     content2 = chat_response['choices'][0]['message']['content']
                     dispatcher.utter_message(text=f"首先，你可以先想想這個問題:\n{content2}")
+                    # 延遲 5 秒
+                    # time.sleep(2)
+                    dispatcher.utter_message(text=f"如果你不知道答案的話，請給我相同的問題，我來替你解答！")
             else:
                 print(f"第二個請求失敗，狀態碼：{response2.status_code}")
         else:
@@ -304,73 +310,73 @@ class ActionIdeaResponse(Action):
             dispatcher.utter_message(text="API請求過程中發生錯誤")
 
 # 判斷問題好壞
-# class ActionEvaluateScienceFairQuestion(Action):
-#     def name(self):
-#         return "action_evaluate_science_fair_question"
+class ActionEvaluateScienceFairQuestion(Action):
+    def name(self):
+        return "action_evaluate_science_fair_question"
 
-#     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: dict):
-#         print("判斷研究問題好壞")
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: dict):
+        print("判斷研究問題好壞")
 
-#         # 獲取最新的用戶意圖
-#         latest_intent = tracker.get_intent_of_latest_message()
+        # 獲取最新的用戶意圖
+        latest_intent = tracker.get_intent_of_latest_message()
 
-#         # 嘗試獲取實體信息
-#         entities = tracker.latest_message.get('entities', [])
-#         research_question = next((e['value'] for e in entities if e['entity'] == 'research_question'), None)
+        # 嘗試獲取實體信息
+        entities = tracker.latest_message.get('entities', [])
+        research_question = next((e['value'] for e in entities if e['entity'] == 'research_question'), None)
 
-#         # 根據意圖和實體給出反饋
-#         if latest_intent == 'bad_science_fair_question':
-#             dispatcher.utter_message(response="utter_bad_question_detected")
-#         elif latest_intent == 'good_science_fair_question' and research_question:
-#             # 呼叫外部API評估研究問題
-#             self.evaluate_question(research_question, dispatcher)
-#         elif research_question:
-#             # 如果有提取到研究主題的實體，但意圖不明確，也進行評估
-#             self.evaluate_question(research_question, dispatcher)
-#         else:
-#             # 如果意圖不是預期中的，且沒有提取到實體
-#             dispatcher.utter_message(text="我不確定你的問題是好是壞，能再詳細一點嗎？")
+        # 根據意圖和實體給出反饋
+        if latest_intent == 'bad_science_fair_question':
+            dispatcher.utter_message(response="utter_bad_question_detected")
+        elif latest_intent == 'good_science_fair_question' and research_question:
+            # 呼叫外部API評估研究問題
+            self.evaluate_question(research_question, dispatcher)
+        elif research_question:
+            # 如果有提取到研究主題的實體，但意圖不明確，也進行評估
+            self.evaluate_question(research_question, dispatcher)
+        else:
+            # 如果意圖不是預期中的，且沒有提取到實體
+            dispatcher.utter_message(text="我不確定你的問題是好是壞，能再詳細一點嗎？")
 
-#         return []
+        return []
 
-#     def evaluate_question(self, research_question, dispatcher):
-#         input_message = research_question
-#         url = "http://ml.hsueh.tw/callapi/"
-#         data = {
-#             "engine": "taiwan-llama",
-#             "temperature": 0.7,
-#             "max_tokens": 800,
-#             "top_p": 0.95,
-#             "top_k": 5,
-#             "roles": [{"role": "system", 
-#                        "content": 
-#                         "作為科學探究與實作的高中自然科學導師，您的任務:幫助學生提出的研究問題檢查以下條件，依據列點回答'是'或'否'，給予結論。"
-#                         "1. 題目會不會對高中生太難"
-#                         "2. 可否取得會自製相關的研究器材"
-#                         "3. 研究材料是否容易取得"
-#                         "4. 實驗是否安全"
-#                         "5. 是否可以找到測量或紀錄的方法"},
-#                       {"role": "user", "content": input_message}],
-#             "frequency_penalty": 0,
-#             "repetition_penalty": 1.03,
-#             "presence_penalty": 0,
-#             "stop": "",
-#             "past_messages": 10,
-#             "purpose": "dev"
-#         }
-#         headers = {
-#             'Accept': 'application/json',
-#             'Content-Type': 'application/json'
-#         }
+    def evaluate_question(self, research_question, dispatcher):
+        input_message = research_question
+        url = "http://ml.hsueh.tw/callapi/"
+        data = {
+            "engine": "gpt-35-turbo",
+            "temperature": 0.7,
+            "max_tokens": 800,
+            "top_p": 0.95,
+            "top_k": 5,
+            "roles": [{"role": "system", 
+                       "content": 
+                        "作為科學探究與實作的高中自然科學導師，您的任務:幫助學生提出的研究問題檢查以下條件，依據列點回答'是'或'否'，給予結論。"
+                        "1. 題目會不會對高中生太難"
+                        "2. 可否取得會自製相關的研究器材"
+                        "3. 研究材料是否容易取得"
+                        "4. 實驗是否安全"
+                        "5. 是否可以找到測量或紀錄的方法"},
+                      {"role": "user", "content": input_message}],
+            "frequency_penalty": 0,
+            "repetition_penalty": 1.03,
+            "presence_penalty": 0,
+            "stop": "",
+            "past_messages": 10,
+            "purpose": "dev"
+        }
+        headers = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
 
-#         try:
-#             response = requests.post(url, json=data, headers=headers)
-#             response.raise_for_status()
-#             message_content = response.json().get('choices', [{}])[0].get('message', {}).get('content', '')
-#             dispatcher.utter_message(text=message_content)
-#         except requests.RequestException as error:
-#             print(f'API請求錯誤: {error}')
-#             dispatcher.utter_message(text="API請求過程中發生錯誤")
+        try:
+            response = requests.post(url, json=data, headers=headers)
+            response.raise_for_status()
+            message_content = response.json().get('choices', [{}])[0].get('message', {}).get('content', '')
+            dispatcher.utter_message(text=message_content)
+        except requests.RequestException as error:
+            print(f'API請求錯誤: {error}')
+            dispatcher.utter_message(text="API請求過程中發生錯誤")
    
 class ActionFallback(Action):
     def name(self):
@@ -790,7 +796,7 @@ class ActionSaveSubtopic(Action):
         if response.status_code == 200:
             result = response.json()
             if result.get("response") and result["response"] not in ['API請求失敗', 'API請求過程中發生錯誤']:
-                dispatcher.utter_message(text=result["response"])
+                # dispatcher.utter_message(text=result["response"])
                 dispatcher.utter_message(text="以下來自科技大觀園的相關資訊...")
 
                 search_contents = []
@@ -816,51 +822,42 @@ class ActionSaveSubtopic(Action):
         return []
 
 # 不知道問題答案
-# class ActionFaqAnswering(Action):
-#     def name(self):
-#         return "action_faq_answering"
+class ActionFaqAnswering(Action):
+    def name(self):
+        return "action_faq_answering"
     
-#     def run(self, dispatcher, tracker, domain):
-#         print("faq_answering")
-#         # 反轉事件列表以便從最新的開始查找
-#         events = reversed(tracker.events)
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: dict):
+        print("faq_answering")
+        # 找到最後一條機器人的發言
+        events = tracker.events
+        bot_messages = [event for event in events if event['event'] == 'bot']
+        if bot_messages:
+            input_message = bot_messages[-1]['text']
+        else:
+            input_message = "未找到機器人的先前消息"
+
+        url = "http://ml.hsueh.tw:1288/query/"
+        data = {
+            "question": input_message
+        }
+        headers = {
+            'accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
+
+        # 發送請求
+        response = requests.post(url, json=data, headers=headers)
+        responses = []  # 創建一個空陣列來儲存回應
+
+        if response.status_code == 200:
+            response_data = response.json()
+            responses.append(response_data['response'])  # 將回應加入到陣列中
+            dispatcher.utter_message(text=response)
+        else:
+            print(f"第一個請求失敗，狀態碼：{response.status_code}")
         
-#         messages_mix = []
-        
-#         # 瀏覽事件並收集訊息
-#         for event in events:
-#             if event.get("event") == "user" or event.get("event") == "bot":
-#                 messages_mix.append(event.get("text"))
+        return []
             
-#             # 停止條件：當收集到足夠的訊息
-#             if len(messages_mix) >= 6:  # 收集 3 個用戶訊息和 3 個機器人訊息
-#                 break
-        
-#         # 將消息列表轉換為單一字符串，每條消息之間用空格分隔
-#         question_text = " ".join(messages_mix) + " 判斷是否有回答問題嗎，回答'是'或'否'"
-        
-#         url = "http://ml.hsueh.tw:1288/query/"
-#         data = {
-#             "question": question_text
-#         }
-#         headers = {
-#             'accept': 'application/json',
-#             'Content-Type': 'application/json'
-#         }
-
-#         # 發送請求
-#         response = requests.post(url, json=data, headers=headers)
-
-#         if response.status_code == 200:
-#             response_data = response.json()
-#             response_result = response_data['response']
-#             # 根據回答是否為'是'來設定 slot
-#             slot_value = True if response_result == '是' else False
-#             return [SlotSet("student_response_quality", slot_value)]
-#         else:
-#             dispatcher.utter_message(text="無法從API獲取資訊。")
-#             return []
-
 class ActionResetSubtopic(Action):
     def name(self):
         return "action_reset_subtopic"

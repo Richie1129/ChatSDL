@@ -115,24 +115,34 @@ const ChatRoom = () => {
                         // }
                     // 將 Rasa 回應的訊息進行分段處理並添加到聊天室 UI
                     rasaMessages.forEach(message => {
-                        // 分段處理
-                        const splitMessages = message.text.split('\n').filter(msg => msg.trim() !== '');
-                        splitMessages.forEach(msg => {
-                            // 檢查訊息是否包含超連結
-                            const urlRegex = /(http[s]?:\/\/[^\s]+)/g;
-                            const matchedUrls = msg.match(urlRegex);
-                            if (matchedUrls) {
-                                // 將訊息中的 URL 轉換成可點擊的超連結
-                                matchedUrls.forEach(url => {
-                                    msg = msg.replace(url, `<a href="${url}" target="_blank">${url}</a>`);
-                                });
-                                // 使用 'html' 類型來渲染 HTML 內容
-                                setMessages(currentMessages => [...currentMessages, { text: msg, type: 'html', isHTML: true }]);
-                            } else {
-                                // 如果訊息中不包含超連結，則正常顯示
+                        const urlRegex = /(http[s]?:\/\/[^\s]+)/g;
+                        const matchedUrls = message.text.match(urlRegex);
+                    
+                        if (matchedUrls) {
+                            // 訊息包含超連結，不分段並轉換為超連結
+                            let processedMessage = message.text;
+                            matchedUrls.forEach(url => {
+                                processedMessage = processedMessage.replace(url, `<a href="${url}" target="_blank">${url}</a>`);
+                            });
+                            setMessages(currentMessages => [...currentMessages, { text: processedMessage, type: 'html', isHTML: true }]);
+                        } else {
+                            // 訊息不包含超連結，進行分段處理
+                            const splitMessages = message.text.split('\n').filter(msg => msg.trim() !== '');
+                            splitMessages.forEach(msg => {
                                 setMessages(currentMessages => [...currentMessages, { text: msg, type: 'response', isHTML: true }]);
+                            });
+                        }
+                            // 新增代碼處理按鈕
+                            if (message.buttons && message.buttons.length > 0) {
+                                message.buttons.forEach(button => {
+                                    const buttonText = button.title;
+                                    const buttonPayload = button.payload;
+                                    // 創建一個 HTML 按鈕並設定點擊事件
+                                    const buttonHTML = `<button onclick='sendPayload("${buttonPayload}")'>${buttonText}</button>`;
+                                    // 添加按鈕到聊天界面
+                                    setMessages(currentMessages => [...currentMessages, { text: buttonHTML, type: 'html', isHTML: true }]);
+                                });
                             }
-                        });
             
                         const responseMessageData = {
                             role: 'assistant',
@@ -170,7 +180,7 @@ const ChatRoom = () => {
                     text: "在這邊你可以探索你有興趣或是想研究的探究主題！",
                     icon: "info"
                   });
-                welcomeMessage = "嗨！我是一位專門輔導高中生科學探究與實作的自然科學導師。我會用適合高中生的語言，保持專業的同時，幫助你探索自然科學的奧秘，並引導你選擇一個有興趣的科展主題，以及更深入了解你的研究問題。今天我們來一起找出一個適合你的科學探究主題。還是你已經有的'主題'或是'想法'了嗎？";
+                welcomeMessage = "嗨！我是一位專門輔導高中生科學探究與實作的自然科學導師。我會用適合高中生的語言，保持專業的同時，幫助你探索自然科學的奧秘，並引導你選擇一個有興趣的科展主題，以及更深入了解你的研究問題。今天我們來一起找出一個適合你的科學探究主題。還是你已經有的研究主題了呢？";
                 break;
             case "option2":
                 optionText = "關鍵字檢索";

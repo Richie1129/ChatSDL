@@ -35,7 +35,6 @@ nlu:
     - 我想探討[機器學習](topic)在數據分析中的應用
     - 能幫我瞭解[納米技術](topic)在材料科學中的作用嗎？
     - 我想研究[生物質能源](topic)的轉換過程
-    - 可以討論下[虛擬現實](topic)在教育中的應用嗎？
     - 我對天文學中的[星系演化](topic)很感興趣
     - 能講講物理學中的[量子力學](topic)嗎？
     - 我想了解[生態系統服務](topic)和人類福祉之間的關係
@@ -51,7 +50,6 @@ nlu:
     - 想了解[黑洞內部發生什麼事](idea)
     - 對於[量子糾纏的現象](idea)很感興趣
     - 為何[有些植物能在黑暗中生長](idea)
-    - 想探討[永續能源的未來發展](idea)
     - 對於[人類的記憶機制](idea)很好奇
     - 想了解[生物在極端環境下的適應機制](idea)
     - 為什麼[太陽的表面溫度比內部高](idea)
@@ -76,9 +74,11 @@ nlu:
 #   examples: |
 #     - 我還不知道要研究什麼
 
-- intent: unknown_response
-    - 這個問題我不知道
-    - 我不知道答案
+# - intent: unknown_response
+#     - 這個問題我不知道答案
+#     - 我不知道這個問題的答案
+#     - 對於這個問題，我不知道答案
+#     - 請你幫我解答這個問題
 
 # - intent: unknown_response
 #     - 沒想法
@@ -350,6 +350,17 @@ nlu:
     - 我想研究[地球歷史的氣候變遷](subtopic)
     - 我想研究[短期氣候變化](subtopic)
     - 我想研究[全球暖化](subtopic)
+    - 我想研究[碳纖維](subtopic)
+    - 我想研究[生物炭](subtopic)
+    - 我想研究[人工智能](subtopic)
+    - 我想研究[奈米技術](subtopic)
+    - 我想研究[氣候變遷](subtopic)
+    - 我想研究[再生能源](subtopic)
+    - 我想研究[幹細胞](subtopic)
+    - 我想研究[超導材料](subtopic)
+    - 我想研究[光合作用](subtopic)
+    - 我想研究[虹吸現象](subtopic)
+    
 
 - intent: definition
   examples: |
@@ -383,75 +394,99 @@ nlu:
       - 為什麼月球影響地球的潮汐，這個過程是如何發生的？
       - 請解釋光合作用的機制，它對地球生態有什麼重要性？
 
-# - intent: bad_science_fair_question
-#   examples: |
-#     - 可口可樂與百事可樂，哪個好喝?
-#     - 哪一款清潔劑效果最好?
-#     - 日治時期的舊油與現代醬油的差異?
-#     - 不同色光對植物的影響?
-#     - 搖滾樂及古典樂如何影響植物生長?
-#     - 看鬼片與喜劇片時血壓的差異?
-#     - 紅色是否讓人熱情如火?
-#     - 地震發生前白老鼠會有什麼異常行為?
-#     - 筆跡或筆順分析?
-#     - 獅子座男生是否有領導特質?
-#     - 警用手槍的彈道分析?
-#     - 熊掌的營養成分分析?
-#     - 瓦斯氣爆威力的研究?
-#     - 企鵝皮下脂肪的結構?
+- intent: bad_science_fair_question
+  examples: |
+    - 我的研究問題是：[可口可樂與百事可樂，哪個好喝?](research_question)[主觀性太強，沒有科學有效性](reason)
+    - 我的研究問題是：[哪一款清潔劑效果最好?](research_question)[產品背後的科學知識較為複雜難懂](reason)
+    - 我的研究問題是：[日治時期的舊油與現代醬油的差異?](research_question)[蒐集到的資料常常是不準確的](reason)
+    - 我的研究問題是：[不同色光對植物的影響?](research_question)[太多人做過了](reason)
+    - 我的研究問題是：[搖滾樂及古典樂如何影響植物生長?](research_question)[差異難以量測](reason)
+    - 我的研究問題是：[看鬼片與喜劇片時血壓的差異?](research_question)[結果通常很顯而易見，或是難以控制實驗的變因](reason)
+    - 我的研究問題是：[紅色是否讓人熱情如火?](research_question)[太過主觀以及難以衡量](reason)
+    - 我的研究問題是：[地震發生前白老鼠會有什麼異常行為?](research_question)[無法量測數據就不是科學研究](reason)
+    - 我的研究問題是：[筆跡或筆順分析?](research_question)[對科學的幫助不大](reason)
+    - 我的研究問題是：[獅子座男生是否有領導特質?](research_question)[沒有科學有效性](reason)
+    - 我的研究問題是：[警用手槍的彈道分析?](research_question)[違背科學展覽的初衷](reason)
+    - 我的研究問題是：[熊掌的營養成分分析?](research_question)[違背科學展覽的初衷](reason)
+    - 我的研究問題是：[瓦斯氣爆威力的研究?](research_question)[違背科學展覽的初衷](reason)
+    - 我的研究問題是：[企鵝皮下脂肪的結構?](research_question)[違背科學展覽的初衷](reason)
+    - 我的研究問題是：[龍貓和兔子，哪個更適合做寵物?](research_question)[太過主觀，無法客觀評斷](reason)
+    - 我的研究問題是：[咖啡因對學生晚上學習效果的影響?](research_question)[影響因素眾多，難以單一歸因](reason)
+    - 我的研究問題是：[月亮的形狀是否影響夜晚的安全感?](research_question)[太主觀，無法客觀測量](reason)
+    - 我的研究問題是：[吃巧克力是否能讓人更快樂?](research_question)[情緒因素難以精確測量](reason)
+    - 我的研究問題是：[使用不同品牌的鉛筆是否影響考試成績?](research_question)[影響微小且難以證明](reason)
+    - 我的研究問題是：[植物對不同音樂節奏的反應?](research_question)[結果很難量化，且因素複雜](reason)
+    - 我的研究問題是：[不同月份出生的人是否有不同的個性特徵?](research_question)[缺乏科學驗證，太過主觀](reason)
+    - 我的研究問題是：[穿紅色衣服的人是否比較容易生氣?](research_question)[主觀偏見，缺乏科學證據](reason)
+    - 我的研究問題是：[星期五出生的人是否真的更幸運?](research_question)[沒有可靠的科學根據](reason)
+    - 我的研究問題是：[聽古典音樂學習是否比聽流行音樂效果更好?](research_question)[因人而異，難以客觀衡量](reason)
 
-# - intent: good_science_fair_question
-#   examples: |
-#     - 城市與鄉村地區降雨量的比較研究
-#     - 不同類型土壤對植物水分保持能力的影響
-#     - 太陽活動對地球磁場變化的影響
-#     - 不同種類的樹木對二氧化碳吸收能力的比較
-#     - 城市光污染對夜空觀測的影響
-#     - 不同溫度對水中溶解氧量的影響
-#     - 風力發電機的效率與風速的關係
-#     - 不同覆蓋物對土壤水分蒸發率的影響
-#     - 海水酸化對珊瑚礁生態系統的影響
-#     - 城市綠地對大氣溫度的調節效應
+- intent: good_science_fair_question
+  examples: |
+    - 我的研究問題是：[城市與鄉村地區降雨量的比較研究](research_question)[具有明確的量化數據和比較基準](reason)
+    - 我的研究問題是：[不同類型土壤對植物水分保持能力的影響](research_question)[可透過實驗得到可靠數據](reason)
+    - 我的研究問題是：[不同種類的樹木對二氧化碳吸收能力的比較](research_question)[重要且可量化的環保相關問題](reason)
+    - 我的研究問題是：[城市光污染對夜空觀測的影響](research_question)[影響可以通過實地觀測明確衡量](reason)
+    - 我的研究問題是：[不同溫度對水中溶解氧量的影響](research_question)[實驗可控，結果具科學意義](reason)
+    - 我的研究問題是：[不同覆蓋物對土壤水分蒸發率的影響](research_question)[實驗操作簡便，數據易於收集](reason)
+    - 我的研究問題是：[海水酸化對珊瑚礁生態系統的影響](research_question)[具有環境意義且結果有廣泛影響](reason)
+    - 我的研究問題是：[城市綠地對大氣溫度的調節效應](research_question)[探討生態保護與城市規劃的重要性](reason)
+    - 我的研究問題是：[生物分解塑料與傳統塑料在土壤中分解速率的比較](research_question)[對減少環境污染具有實際應用價值](reason)
+    - 我的研究問題是：[有機肥料與化學肥料對植物生長的影響](research_question)[對可持續農業的實際意義](reason)
+    - 我的研究問題是：[不同種類農作物對土壤養分消耗的比較](research_question)[研究農作物對土壤影響的科學基礎](reason)
+    - 我的研究問題是：[不同濾水技術對飲用水質量的影響](research_question)[水質是公共健康的關鍵因素](reason)
+    - 我的研究問題是：[不同溫度對酵母發酵速率的影響](research_question)[實驗簡單，結果易於量化](reason)
+    - 我的研究問題是：[礦物質含量對土壤保水性的影響](research_question)[礦物質含量可通過化學分析確定，保水性可實驗測試](reason)
+    - 我的研究問題是：[不同種類防曬霜對UV輻射阻擋效果的比較](research_question)[可以通過實驗測定UV穿透率](reason)
+    - 我的研究問題是：[潮汐力對沿海地區鹽分濃度變化的影響](research_question)[鹽分濃度可用電導率儀精確測量](reason)
+    - 我的研究問題是：[不同濃度的酸對金屬腐蝕速率的影響](research_question)[腐蝕速率可通過質量變化精確測量](reason)
+    - 我的研究問題是：[微波輻射對植物種子發芽率的影響](research_question)[發芽率是具體且可量化的指標](reason)
+    - 我的研究問題是：[不同光照強度對太陽能板效率的影響](research_question)[實驗條件易於控制，數據客觀可量化](reason)
+    - 我的研究問題是：[不同pH值對水生植物生長的影響](research_question)[pH值易於精確測量，影響明顯可比較](reason)
+    - 我的研究問題是：[不同表面處理對太陽光反射率的影響](research_question)[反射率可通過光度計精確測量](reason)
+    - 我的研究問題是：[化學藥品對微生物生長抑制效果的比較](research_question)[通過培養皿實驗觀察微生物生長情況](reason)
+    - 我的研究問題是：[土壤不同深度的水分含量對植物根系發展的影響](research_question)[實驗中透過土壤鑽取樣本測量水分含量](reason)
 
-# - intent: submit_science_fair_question
-#   examples: |
-#     - 這個好作為科學展覽的問題嗎：[太陽活動如何影響地球氣候](research_question)
-#     - 我想知道這個題目怎麼樣：[不同品種的蘋果含有多少糖分](research_question)
-#     - 請評價我的科展問題：[城市光污染對人類健康的影響](research_question)
-#     - 我有一個科展問題想要提交：[海水酸化對魚類生態系統的影響](research_question)
-#     - 我的研究問題是[螢光藻的生物發光機制及其在海洋生態系統中的作用](research_question)
-#     - 我想研究的問題是探究[海洋浮游生物對海洋酸化的響應](research_question)
-#     - 我的研究問題是[生物炭對於不同類型土壤的改良效果有何差異](research_question)
-#     - 我的研究問題是[太陽能板在不同天氣條件下的能量轉換效率有何差異](research_question)
-#     - 我想探究的問題是[改變物質顏色對其吸熱和散熱速率的影響](research_question)
-#     - 我的研究問題是[不同表面材質對滑輪系統效率的影響](research_question)
-#     - 我想研究的問題是[觀察和記錄月相變化對晚上可見星星的影響](research_question)
-#     - 我的研究問題是[萬有引力定律在不同距離下對物體下落速度的影響](research_question)
-#     - 我想探究的問題是[不同顏色的光如何影響植物的生長速度和方向](research_question)
-#     - 我的研究問題是[簡單電磁線圈的設計對其磁場強度的影響](research_question)
-#     - 我想研究的問題是[使用雙狹縫實驗來觀察和解釋光的波動性質](research_question)
-#     - 我的研究問題是[科技進步如何影響社會的能源消耗模式](research_question)
-#     - 我想探究的問題是[用簡單的化學實驗方法來鑑定生活中常見液體的成分](research_question)
-#     - 我的研究問題是[不同種類的水果和蔬菜如何在防止食物氧化方面表現出來](research_question)
-#     - 我想探究的問題是[城市和鄉村地區的空氣質量比較研究](research_question)
-#     - 我的研究問題是[探討本地氣象變化與全球氣候變化的關係](research_question)
-#     - 我想研究的問題是[探究果蠅的遺傳特徵和品種之間的差異](research_question)
-#     - 我的研究問題是研究[不同環境條件對果蠅生長速率的影響](research_question)
-#     - 我想探究的問題是[本地生物多樣性對生態系統穩定性的影響](research_question)
-#     - 我的研究問題是[基改食品在營養和健康方面與非基改食品的比較分析](research_question)
-#     - 我想探究的問題是[模擬不同地形對洪水流向和速度的影響](research_question)
-#     - 我的研究問題是[模擬不同類型板塊邊界對地震發生的影響](research_question)
-#     - 我想研究的問題是[本地氣候變化與全球氣候模式的相關性](research_question)
-#     - 我的研究問題是如何[通過觀察植物和動物的行為來研究晝夜節律和季節變化](research_question)
-#     - 我想探究的問題是如何[評估和改善家庭或學校的水資源利用效率，以促進永續發展]。(research_question)
-#     - 我的研究問題是比較[太陽能、風能和水能在成本、效率和環境影響方面的差異]。(research_question)
-#     - 我想探究的問題是研究[家庭電器的能耗，探索節能減排的方法]。(research_question)
-#     - 我的研究問題是不同[酸鹼度的水溶液對金屬腐蝕速率的影響如何](research_question)
-#     - 我想探究的問題是用[酸鹼指示劑探索日常生活中不同物質的酸鹼性](research_question)
-#     - 我的研究問題是探究[科技如何幫助改善個人健康和生活質量](research_question)
-#     - 我想研究的問題是[不同類型的岩石和礦物在地球形成和變化過程中的作用](research_question)
-#     - 我的研究問題是探討[化石記錄如何幫助我們了解生物演化的歷史](research_question)
-#     - 我想探究的問題是調查[本地生態系統中物種多樣性與生態系統健康之間的關係](research_question)
+
+- intent: submit_science_fair_question
+  examples: |
+    - 我的研究問題是：[太陽活動如何影響地球氣候?](research_question)
+    - 我的研究問題是：[不同品種的蘋果含有多少糖分?](research_question)
+    - 我的研究問題是：[城市光污染對人類健康的影響](research_question)
+    - 我的研究問題是：[海水酸化對魚類生態系統的影響](research_question)
+    - 我的研究問題是：[螢光藻的生物發光機制及其在海洋生態系統中的作用](research_question)
+    - 我的研究問題是：[海洋浮游生物對海洋酸化的響應](research_question)
+    - 我的研究問題是：[生物炭對於不同類型土壤的改良效果有何差異?](research_question)
+    - 我的研究問題是：[太陽能板在不同天氣條件下的能量轉換效率有何差異?](research_question)
+    - 我的研究問題是：[改變物質顏色對其吸熱和散熱速率的影響](research_question)
+    - 我的研究問題是：[不同表面材質對滑輪系統效率的影響](research_question)
+    - 我的研究問題是：[觀察和記錄月相變化對晚上可見星星的影響](research_question)
+    - 我的研究問題是：[萬有引力定律在不同距離下對物體下落速度的影響](research_question)
+    - 我的研究問題是：[不同顏色的光如何影響植物的生長速度和方向](research_question)
+    - 我的研究問題是：[簡單電磁線圈的設計對其磁場強度的影響](research_question)
+    - 我的研究問題是：[使用雙狹縫實驗來觀察和解釋光的波動性質](research_question)
+    - 我的研究問題是：[科技進步如何影響社會的能源消耗模式](research_question)
+    - 我的研究問題是：[用簡單的化學實驗方法來鑑定生活中常見液體的成分](research_question)
+    - 我的研究問題是：[不同種類的水果和蔬菜如何在防止食物氧化方面表現出來](research_question)
+    - 我的研究問題是：[城市和鄉村地區的空氣質量比較研究](research_question)
+    - 我的研究問題是：[探討本地氣象變化與全球氣候變化的關係](research_question)
+    - 我的研究問題是：[探究果蠅的遺傳特徵和品種之間的差異](research_question)
+    - 我的研究問題是：[不同環境條件對果蠅生長速率的影響](research_question)
+    - 我的研究問題是：[本地生物多樣性對生態系統穩定性的影響](research_question)
+    - 我的研究問題是：[基改食品在營養和健康方面與非基改食品的比較分析](research_question)
+    - 我的研究問題是：[模擬不同地形對洪水流向和速度的影響](research_question)
+    - 我的研究問題是：[模擬不同類型板塊邊界對地震發生的影響](research_question)
+    - 我的研究問題是：[本地氣候變化與全球氣候模式的相關性](research_question)
+    - 我的研究問題是：[通過觀察植物和動物的行為來研究晝夜節律和季節變化](research_question)
+    - 我的研究問題是：[評估和改善家庭或學校的水資源利用效率，以促進永續發展]。(research_question)
+    - 我的研究問題是：[太陽能、風能和水能在成本、效率和環境影響方面的差異]。(research_question)
+    - 我的研究問題是：[家庭電器的能耗，探索節能減排的方法]。(research_question)
+    - 我的研究問題是：[酸鹼度的水溶液對金屬腐蝕速率的影響如何](research_question)
+    - 我的研究問題是：[酸鹼指示劑探索日常生活中不同物質的酸鹼性](research_question)
+    - 我的研究問題是：究[科技如何幫助改善個人健康和生活質量](research_question)
+    - 我的研究問題是：[不同類型的岩石和礦物在地球形成和變化過程中的作用](research_question)
+    - 我的研究問題是：[化石記錄如何幫助我們了解生物演化的歷史](research_question)
+    - 我的研究問題是：[本地生態系統中物種多樣性與生態系統健康之間的關係](research_question)
 
 
 # - intent: explore_topic

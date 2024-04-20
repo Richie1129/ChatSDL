@@ -37,15 +37,15 @@ stories:
   - action: utter_no_idea_check
   - action: action_start_decision_tree
 
-# # 判斷研究問題好壞
-# - story: Detect science fair question quality
-#   steps:
-#   - intent: submit_science_fair_question
-#   - action: action_evaluate_science_fair_question
-#   - intent: good_science_fair_question
-#   - action: utter_good_question_detected
-#   - intent: bad_science_fair_question
-#   - action: utter_bad_question_detected
+# 判斷研究問題好壞
+- story: Detect science fair question quality
+  steps:
+  - intent: submit_science_fair_question
+  - action: action_evaluate_science_fair_question
+  - intent: good_science_fair_question
+  - action: utter_good_question_detected
+  - intent: bad_science_fair_question
+  - action: utter_bad_question_detected
 
 - story: Chemistry topic selection
   steps:
