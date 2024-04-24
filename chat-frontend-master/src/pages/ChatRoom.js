@@ -9,6 +9,7 @@ import Swal from 'sweetalert2'
 import './ChatRoom.css';
 import { fetchTechCsv } from '../Api/techcsv';
 import DialogBox from '../components/DialogBox'
+import { fetch5W1H } from '../Api/5W1H';
 // import { sendMessage, sendButtonPayload } from './app.js';  // 確保路徑正確
 
 const ChatRoom = () => {
@@ -43,16 +44,15 @@ const ChatRoom = () => {
             // 清空輸入框
             setInputMessage('');
 
-            // if (selectedOption === '相關科展作品') {
-            //     const searchResults = await fetchElasticSearchResults(inputMessage);
-            //     if (Array.isArray(searchResults)) {
-            //         searchResults.forEach(result => {
-            //             setMessages(currentMessages => [...currentMessages, { text: result, type: 'response' }]);
-            //         });
-            //     } else {
-            //         console.error('返回的數據不是陣列');
-            //     }
-            if (inputMessage.includes('我想查詢相關作品：')) {
+            if (selectedOption === '5W1H') {
+                const searchResult = await fetch5W1H(inputMessage);
+                if (searchResult && !searchResult.error) {
+                  setMessages(currentMessages => [...currentMessages,{ text: '首先，你可以先想想這個問題：', type: 'response' }]);
+                  setMessages(currentMessages => [...currentMessages, { text: searchResult.choices[0].message.content, type: 'response' }]);
+                } else {
+                  console.error('返回的數據不符合預期');
+                }
+              } else if (inputMessage.includes('我想查詢相關作品：')) {
                 const keyword = inputMessage.split('我想查詢相關作品：')[1]; // 從輸入中提取關鍵字
                 const searchResults = await fetchElasticSearchResults(keyword); // 使用提取的關鍵字進行搜索
             
@@ -63,7 +63,7 @@ const ChatRoom = () => {
                 } else {
                     console.error('返回的數據不是陣列');
                 }           
-            } else if (selectedOption === '關鍵字檢索') {
+            } else if (selectedOption === '科技大觀園') {
                 const techResult = await fetchTechCsv(inputMessage);
                 if (techResult.response && techResult.response !== 'API請求失敗' && techResult.response !== 'API請求過程中發生錯誤') {
                     setMessages(currentMessages => [
@@ -180,26 +180,26 @@ const ChatRoom = () => {
                     text: "在這邊你可以探索你有興趣或是想研究的探究主題！",
                     icon: "info"
                   });
-                welcomeMessage = "嗨！我是一位專門輔導高中生科學探究與實作的自然科學導師。我會用適合高中生的語言，保持專業的同時，幫助你探索自然科學的奧秘，並引導你選擇一個有興趣的科展主題，以及更深入了解你的研究問題。今天我們來一起找出一個適合你的科學探究主題。還是你已經有的研究主題了呢？";
+                welcomeMessage = "嗨！我是一位專門輔導高中生科學探究與實作的自然科學導師。我會用適合高中生的語言，保持專業的同時，幫助你探索自然科學的奧秘，並引導你選擇一個有興趣的科展主題，以及更深入了解你的研究問題。今天我們來一起找出一個適合你的科學探究主題。還是你已經有研究主題了呢？";
                 break;
             case "option2":
-                optionText = "關鍵字檢索";
+                optionText = "科技大觀園";
                 Swal.fire({
-                    title: "檢索關鍵字",
-                    text: "在這邊你可以查詢有關於你研究問題或是主題相關的關鍵字！",
+                    title: "科技大觀園",
+                    text: "在這邊會提供你來自科技大觀園相關資訊！",
                     icon: "info"
                   });
-                  welcomeMessage = "嗨，當你在科學探究與實做到這個階段，你可能需要利用你的研究主題或是研究問題，找出適合的關鍵字來尋找相關科展作品或是找出其他的文獻資料，來做為你科學探究與實作的靈感。首先請你先直接輸入你的研究問題！";
+                  welcomeMessage = "嗨，在這邊會提供你來自科技大觀園相關資訊，你有什麼想了解的或是疑惑嗎？";
                 break;
-            // case "option3":
-            //     optionText = "相關科展作品";
-            //     Swal.fire({
-            //         title: "查詢相關科展作品",
-            //         text: "在這邊你可以查詢的相關科展作品，直接輸入關鍵字即可！",
-            //         icon: "info"
-            //       });
-            //     welcomeMessage = "這個功能可以幫助你利用關鍵字來找尋相關科展作品，來給你參考其他人對於你選定的主題會怎麼做，希望這會給你帶來靈感，直接輸入關鍵字即可！如果想查詢多個關鍵字請用 '、' 分開！";
-            //       break;
+            case "option3":
+                optionText = "5W1H";
+                Swal.fire({
+                    title: "5W1H",
+                    text: "5W1H",
+                    icon: "info"
+                  });
+                welcomeMessage = "嗨，在這裡可以當你提出研究主題時利用5W1H的問題來引導你思考！";
+                  break;
             default:
                 optionText = "";
         }
@@ -231,8 +231,8 @@ const ChatRoom = () => {
             </div>
                 <div className="options">                
                     <button onClick={() => handleOptionSelect("option1")}>探究主題</button>
-                    <button onClick={() => handleOptionSelect("option2")}>關鍵字檢索</button>
-                    {/* <button onClick={() => handleOptionSelect("option3")}>相關科展作品</button> */}
+                    <button onClick={() => handleOptionSelect("option2")}>科技大觀園</button>
+                    <button onClick={() => handleOptionSelect("option3")}>5W1H</button>
                 </div>
                 <div>
                     <DialogBox onScaffoldClick={setInputMessage} />

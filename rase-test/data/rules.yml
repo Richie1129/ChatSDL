@@ -13,17 +13,17 @@ rules:
 #   - intent: user_responds_to_topic
 #   - action: action_topic_response
 
-- rule: Idea Check Rule
-  steps:
-  - intent: idea_check
-  - action: utter_curiosity
+# - rule: Idea Check Rule
+#   steps:
+#   - intent: idea_check
+#   - action: utter_curiosity
   # - action: action_idea_response
 
-- rule: No Idea Check Rule
-  steps:
-  - intent: no_idea_check
-  - action: utter_no_idea_check
-  - action: action_start_decision_tree
+# - rule: No Idea Check Rule
+#   steps:
+#   - intent: no_idea_check
+#   - action: utter_no_idea_check
+#   - action: action_start_decision_tree
 
 # 處理科目選擇後的動作
 - rule: Save Science Discipline
@@ -84,4 +84,4 @@ rules:
 - rule: Fallback rule
   steps:
   - intent: nlu_fallback
-  - action: action_fallback
+  - action: utter_please_rephrase

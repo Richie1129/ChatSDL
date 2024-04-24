@@ -1,0 +1,36 @@
+[
+  {
+    "tag_name": "entity",
+    "ids_to_tags": {
+      "1": "B-has_topic",
+      "2": "I-has_topic",
+      "3": "L-has_topic",
+      "4": "U-has_topic",
+      "5": "B-science_discipline",
+      "6": "I-science_discipline",
+      "7": "L-science_discipline",
+      "8": "U-science_discipline",
+      "9": "B-subtopic",
+      "10": "I-subtopic",
+      "11": "L-subtopic",
+      "12": "U-subtopic",
+      "0": "O"
+    },
+    "tags_to_ids": {
+      "B-has_topic": 1,
+      "I-has_topic": 2,
+      "L-has_topic": 3,
+      "U-has_topic": 4,
+      "B-science_discipline": 5,
+      "I-science_discipline": 6,
+      "L-science_discipline": 7,
+      "U-science_discipline": 8,
+      "B-subtopic": 9,
+      "I-subtopic": 10,
+      "L-subtopic": 11,
+      "U-subtopic": 12,
+      "O": 0
+    },
+    "num_tags": 13
+  }
+]

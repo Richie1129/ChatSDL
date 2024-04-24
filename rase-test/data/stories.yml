@@ -7,6 +7,12 @@ stories:
   - intent: greet
   - action: utter_greet
 
+- story: check topic exist
+  steps:
+  - intent: confirm_existing_topic
+  - action: action_handle_topic
+  - action: action_check_slots
+
 # - story: topic discussion for more info
 #   steps:
 #   - intent: topic_check
@@ -31,21 +37,23 @@ stories:
 #   steps:
 #   - intent: idea_check
 #   - action: action_idea_response
+
 - story: No Idea
   steps:
   - intent: no_idea_for_decision_tree
   - action: utter_no_idea_check
   - action: action_start_decision_tree
+  - action: action_check_slots
 
-# 判斷研究問題好壞
-- story: Detect science fair question quality
-  steps:
-  - intent: submit_science_fair_question
-  - action: action_evaluate_science_fair_question
-  - intent: good_science_fair_question
-  - action: utter_good_question_detected
-  - intent: bad_science_fair_question
-  - action: utter_bad_question_detected
+# # 判斷研究問題好壞
+# - story: Detect science fair question quality
+#   steps:
+#   - intent: submit_science_fair_question
+#   - action: action_evaluate_science_fair_question
+#   - intent: good_science_fair_question
+#   - action: utter_good_question_detected
+#   - intent: bad_science_fair_question
+#   - action: utter_bad_question_detected
 
 - story: Chemistry topic selection
   steps:
@@ -67,9 +75,28 @@ stories:
     - action: action_save_science_discipline
     - intent: choose_physics_topic
     - action: action_explore_physics_topic
-    - intent: choose_subtopic
-    - action: action_save_subtopic
-    - action: action_reset_subtopic  # 讓Rasa等待下一個用戶輸入並判斷意圖
+    - slot_was_set:
+        - continue_conversation: true
+    # - action: action_listen
+    # - intent: choose_physics_topic
+    # - action: action_explore_physics_topic
+    # - slot_was_set:
+    #     - continue_conversation: true
+    # - action: action_check_additional_help  # 添加這個步驟來聽取用戶的反應
+    # - intent: choose_subtopic
+    # - action: action_save_subtopic
+    # - action: action_reset_subtopic  # 讓Rasa等待下一個用戶輸入並判斷意圖
+
+- story: Stop Physics Topic Exploration
+  steps:
+    - intent: choose_discipline
+      entities:
+        - science_discipline: "physics"
+    - action: action_save_science_discipline
+    - intent: choose_physics_topic
+    - action: action_explore_physics_topic
+    - slot_was_set:
+        - continue_conversation: false
 
 - story: Biology topic selection
   steps:

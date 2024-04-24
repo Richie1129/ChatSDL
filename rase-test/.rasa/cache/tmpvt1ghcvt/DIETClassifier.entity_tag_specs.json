@@ -1,0 +1,28 @@
+[
+  {
+    "tag_name": "entity",
+    "ids_to_tags": {
+      "1": "B-has_topic",
+      "2": "I-has_topic",
+      "3": "L-has_topic",
+      "4": "U-has_topic",
+      "5": "B-subtopic",
+      "6": "I-subtopic",
+      "7": "L-subtopic",
+      "8": "U-subtopic",
+      "0": "O"
+    },
+    "tags_to_ids": {
+      "B-has_topic": 1,
+      "I-has_topic": 2,
+      "L-has_topic": 3,
+      "U-has_topic": 4,
+      "B-subtopic": 5,
+      "I-subtopic": 6,
+      "L-subtopic": 7,
+      "U-subtopic": 8,
+      "O": 0
+    },
+    "num_tags": 9
+  }
+]

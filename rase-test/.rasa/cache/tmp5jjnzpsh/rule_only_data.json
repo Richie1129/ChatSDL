@@ -1,0 +1,7 @@
+{
+  "rule_only_slots": [
+    "subtopic",
+    "science_discipline"
+  ],
+  "rule_only_loops": []
+}

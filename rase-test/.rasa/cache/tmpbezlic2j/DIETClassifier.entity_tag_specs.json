@@ -1,0 +1,44 @@
+[
+  {
+    "tag_name": "entity",
+    "ids_to_tags": {
+      "1": "B-has_topic",
+      "2": "I-has_topic",
+      "3": "L-has_topic",
+      "4": "U-has_topic",
+      "5": "B-reason",
+      "6": "I-reason",
+      "7": "L-reason",
+      "8": "U-reason",
+      "9": "B-research_question",
+      "10": "I-research_question",
+      "11": "L-research_question",
+      "12": "U-research_question",
+      "13": "B-subtopic",
+      "14": "I-subtopic",
+      "15": "L-subtopic",
+      "16": "U-subtopic",
+      "0": "O"
+    },
+    "tags_to_ids": {
+      "B-has_topic": 1,
+      "I-has_topic": 2,
+      "L-has_topic": 3,
+      "U-has_topic": 4,
+      "B-reason": 5,
+      "I-reason": 6,
+      "L-reason": 7,
+      "U-reason": 8,
+      "B-research_question": 9,
+      "I-research_question": 10,
+      "L-research_question": 11,
+      "U-research_question": 12,
+      "B-subtopic": 13,
+      "I-subtopic": 14,
+      "L-subtopic": 15,
+      "U-subtopic": 16,
+      "O": 0
+    },
+    "num_tags": 17
+  }
+]
